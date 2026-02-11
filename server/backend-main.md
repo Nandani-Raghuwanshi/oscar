@@ -1,6 +1,315 @@
 
 # BuiltCred Referral System – Backend To-Do List
+## 📋 Phase 0: Authentication & Core Infrastructure (Add to beginning)
 
+### User Authentication System
+
+#### User Registration & Signup
+- [ ] **POST** `/api/auth/signup`
+  - [ ] Accept email, password, full name
+  - [ ] Validate email format & strength
+  - [ ] Hash password securely
+  - [ ] Create user record in database
+  - [ ] Generate email verification token
+  - [ ] Send verification email
+  - [ ] Return confirmation message
+
+#### Email Verification
+- [ ] **POST** `/api/auth/verify-email`
+  - [ ] Accept verification token
+  - [ ] Verify token validity & expiration
+  - [ ] Mark email as verified
+  - [ ] Activate user account
+  - [ ] Return success message
+- [ ] **POST** `/api/auth/resend-verification`
+  - [ ] Resend verification email
+  - [ ] Generate new token if old one expired
+
+#### User Login
+- [ ] **POST** `/api/auth/login`
+  - [ ] Accept email & password
+  - [ ] Verify credentials
+  - [ ] Check email verification status
+  - [ ] Generate JWT access token (15 min expiry)
+  - [ ] Generate refresh token (7 days expiry)
+  - [ ] Log login activity
+  - [ ] Return tokens & user data
+
+#### Token Refresh
+- [ ] **POST** `/api/auth/refresh-token`
+  - [ ] Accept refresh token
+  - [ ] Validate token & expiration
+  - [ ] Generate new access token
+  - [ ] Optionally rotate refresh token
+  - [ ] Log token refresh
+
+#### Password Reset Flow
+- [ ] **POST** `/api/auth/forgot-password`
+  - [ ] Accept email address
+  - [ ] Check if user exists
+  - [ ] Generate password reset token (1 hour expiry)
+  - [ ] Send reset email with link
+  - [ ] Log password reset request
+- [ ] **POST** `/api/auth/reset-password`
+  - [ ] Accept reset token & new password
+  - [ ] Validate token & expiration
+  - [ ] Validate password strength
+  - [ ] Hash new password
+  - [ ] Update user password
+  - [ ] Invalidate all existing tokens
+  - [ ] Send confirmation email
+
+#### Password Change (Authenticated User)
+- [ ] **POST** `/api/auth/change-password`
+  - [ ] Require current password verification
+  - [ ] Accept new password
+  - [ ] Validate password strength
+  - [ ] Update password
+  - [ ] Invalidate all existing tokens
+  - [ ] Force re-login
+
+#### User Logout
+- [ ] **POST** `/api/auth/logout`
+  - [ ] Invalidate JWT token
+  - [ ] Revoke refresh token
+  - [ ] Log logout activity
+  - [ ] Clear session data
+
+#### Two-Factor Authentication (2FA)
+- [ ] **POST** `/api/auth/2fa/setup`
+  - [ ] Generate TOTP secret
+  - [ ] Return QR code for scanning
+  - [ ] Accept verification code
+  - [ ] Enable 2FA on account
+- [ ] **POST** `/api/auth/2fa/verify`
+  - [ ] Accept TOTP code during login
+  - [ ] Verify code validity
+  - [ ] Complete authentication if valid
+- [ ] **POST** `/api/auth/2fa/disable`
+  - [ ] Require password verification
+  - [ ] Disable 2FA
+  - [ ] Generate backup codes
+
+#### Social Login Integration (Optional Phase 1)
+- [ ] **POST** `/api/auth/google/callback`
+  - [ ] Verify Google OAuth token
+  - [ ] Create/find user account
+  - [ ] Generate BuiltCred tokens
+- [ ] **POST** `/api/auth/facebook/callback`
+  - [ ] Verify Facebook OAuth token
+  - [ ] Create/find user account
+  - [ ] Generate BuiltCred tokens
+
+---
+
+### Notification Services
+
+#### Email Service
+- [ ] **Service:** EmailService
+  - [ ] Send transactional emails (verification, reset, etc.)
+  - [ ] Template rendering engine
+  - [ ] Support HTML & plain text
+  - [ ] Queue email sending
+  - [ ] Track email delivery status
+  - [ ] Handle bounces & complaints
+  - [ ] Implement retry logic
+- [ ] **Provider Integration:**
+  - [ ] SendGrid / Mailgun / AWS SES configuration
+  - [ ] Template management
+  - [ ] Unsubscribe handling
+
+#### SMS Service
+- [ ] **Service:** SMSService
+  - [ ] Send SMS notifications (OTP, referral updates)
+  - [ ] Support OTP delivery for 2FA
+  - [ ] Track delivery status
+  - [ ] Handle failures & retries
+  - [ ] Support multiple regions/carriers
+- [ ] **Provider Integration:**
+  - [ ] Twilio / AWS SNS / Vonage configuration
+
+#### WhatsApp Notifications
+- [ ] **Service:** WhatsAppService
+  - [ ] Send referral updates via WhatsApp
+  - [ ] Send reward notifications
+  - [ ] Send conversion alerts
+  - [ ] Track message delivery
+- [ ] **Provider Integration:**
+  - [ ] Meta WhatsApp Business API configuration
+
+#### In-App Notifications
+- [ ] **Service:** NotificationService
+  - [ ] Create in-app notification records
+  - [ ] Send real-time notifications (WebSocket/Server-Sent Events)
+  - [ ] Store notification history
+  - [ ] Mark as read/unread
+  - [ ] Archive notifications
+- [ ] **Database:**
+  - [ ] Create `notifications` table
+  - [ ] Create `notification_preferences` table
+
+#### Notification Templates
+- [ ] Email templates:
+  - [ ] Email verification template
+  - [ ] Password reset template
+  - [ ] Welcome email template
+  - [ ] Referral confirmation template
+  - [ ] Lead received template
+  - [ ] Conversion notification template
+  - [ ] Reward payout template
+  - [ ] CRM sync error template
+- [ ] SMS templates:
+  - [ ] OTP template
+  - [ ] Referral link template
+  - [ ] Lead update template
+  - [ ] Reward notification template
+- [ ] WhatsApp templates:
+  - [ ] Referral received template
+  - [ ] Conversion alert template
+  - [ ] Reward earned template
+
+#### Notification Preferences
+- [ ] **POST** `/api/notifications/preferences`
+  - [ ] Store user notification preferences
+  - [ ] Allow opt-in/opt-out per channel
+  - [ ] Support frequency settings
+- [ ] **GET** `/api/notifications/preferences`
+  - [ ] Retrieve user preferences
+
+---
+
+### File Upload & Storage Service
+
+#### File Upload Service
+- [ ] **Service:** FileUploadService
+  - [ ] Handle multipart file uploads
+  - [ ] Validate file types & sizes
+  - [ ] Generate unique file names
+  - [ ] Store file metadata
+  - [ ] Support chunked uploads (for large files)
+  - [ ] Implement virus scanning
+  - [ ] Generate file hashes
+
+#### Cloud Storage Integration
+- [ ] **Service:** StorageService
+  - [ ] Upload files to S3 / GCP Storage / Azure Blob
+  - [ ] Generate secure download URLs
+  - [ ] Set access control & expiration
+  - [ ] Implement CDN caching
+  - [ ] Delete old files with retention policies
+- [ ] **POST** `/api/files/upload`
+  - [ ] Accept file upload
+  - [ ] Validate & scan file
+  - [ ] Store in cloud storage
+  - [ ] Save metadata to database
+  - [ ] Return file URL & ID
+- [ ] **GET** `/api/files/:fileId/download`
+  - [ ] Generate secure download URL
+  - [ ] Stream file to client
+  - [ ] Log download activity
+
+#### Document Management
+- [ ] Create `documents` table
+  - [ ] id, file_id, project_id, document_type
+  - [ ] title, description, size, format
+  - [ ] upload_timestamp, expiration_date
+  - [ ] view_count, access_log
+- [ ] **POST** `/api/documents/upload`
+  - [ ] Upload project documents
+  - [ ] Categorize by type
+  - [ ] Set visibility & access control
+- [ ] **PUT** `/api/documents/:documentId`
+  - [ ] Update document metadata
+  - [ ] Update visibility & access
+
+---
+
+### Logging & Monitoring Service
+
+#### Structured Logging
+- [ ] **Service:** LoggerService
+  - [ ] Log with different levels (error, warn, info, debug)
+  - [ ] Include request context (userId, timestamp, endpoint)
+  - [ ] Structure logs as JSON
+  - [ ] Support log correlation IDs
+  - [ ] Implement async logging (non-blocking)
+- [ ] **Configuration:**
+  - [ ] Winston / Pino / Morgan setup
+  - [ ] Log file rotation
+  - [ ] Log retention policies
+
+#### Request Logging Middleware
+- [ ] **Middleware:** RequestLogger()
+  - [ ] Log all incoming requests
+  - [ ] Include method, path, query params
+  - [ ] Log response status & timing
+  - [ ] Log request/response body (sanitized)
+  - [ ] Track request ID throughout execution
+
+#### Error Logging
+- [ ] **Service:** ErrorLogger
+  - [ ] Capture all exceptions
+  - [ ] Log stack traces
+  - [ ] Include context & variables
+  - [ ] Send critical errors to monitoring service
+  - [ ] Alert on repeated errors
+
+#### Performance Metrics Logging
+- [ ] **Service:** MetricsService
+  - [ ] Track API response times
+  - [ ] Monitor database query performance
+  - [ ] Track external API calls
+  - [ ] Monitor memory & CPU usage
+  - [ ] Generate performance reports
+
+---
+
+### Caching Service
+
+#### Redis Cache Configuration
+- [ ] **Service:** CacheService
+  - [ ] Connect to Redis
+  - [ ] Implement key-value storage
+  - [ ] Set TTL for cache entries
+  - [ ] Support cache invalidation
+  - [ ] Handle cache misses gracefully
+- [ ] **Caching Strategy:**
+  - [ ] Cache advocate data (1 hour)
+  - [ ] Cache project data (2 hours)
+  - [ ] Cache reward tier configs (daily)
+  - [ ] Cache analytics aggregations (hourly)
+  - [ ] Cache user sessions (session duration)
+
+#### Session Management
+- [ ] **Service:** SessionService
+  - [ ] Store sessions in Redis
+  - [ ] Implement session expiration
+  - [ ] Support session refresh
+  - [ ] Track concurrent sessions
+  - [ ] Implement logout (session invalidation)
+
+---
+
+### Error Handling & Validation
+
+#### Centralized Error Handling
+- [ ] **Service:** ErrorHandler
+  - [ ] Standardize error responses
+  - [ ] Map exceptions to HTTP status codes
+  - [ ] Include error codes & messages
+  - [ ] Include request ID for debugging
+  - [ ] Sanitize error messages (no sensitive data)
+- [ ] **Error Response Format:**
+  ```json
+  {
+    "error": "VALIDATION_ERROR",
+    "message": "User-friendly message",
+    "details": [...],
+    "requestId": "req-uuid",
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+  ```
+  
 ## 📋 Phase 1: MVP Core Features
 
 ### Database Schema & Design
