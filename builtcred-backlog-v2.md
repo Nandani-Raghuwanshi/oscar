@@ -13,34 +13,34 @@ BuiltCred is a referral management platform for real estate developers that enab
 
 ---
 
-## 📊 Epic Overview
+## 📊 Module Overview
 
-### Epic 1: Core Advocate System
+### Module 1: Core Advocate System
 - **Priority:** P0 (Critical)
 - **Story Points:** 89
 - **Sprint:** 1-3
 
-### Epic 2: Referral Engine
+### Module 2: Referral Engine
 - **Priority:** P0 (Critical)
 - **Story Points:** 144
 - **Sprint:** 2-5
 
-### Epic 3: Homeowner Portal
+### Module 3: Homeowner Portal
 - **Priority:** P0 (Critical)
 - **Story Points:** 103
 - **Sprint:** 4-7
 
-### Epic 4: Admin Panel
+### Module 4: Admin Panel
 - **Priority:** P0 (Critical)
 - **Story Points:** 121
 - **Sprint:** 6-9
 
-### Epic 5: CRM Integration
+### Module 5: CRM Integration
 - **Priority:** P1 (High)
 - **Story Points:** 89
 - **Sprint:** 8-10
 
-### Epic 6: Notifications & Communication
+### Module 6: Notifications & Communication
 - **Priority:** P1 (High)
 - **Story Points:** 55
 - **Sprint:** 9-11
@@ -51,10 +51,10 @@ BuiltCred is a referral management platform for real estate developers that enab
 
 ---
 
-## EPIC 1: CORE ADVOCATE SYSTEM
+## Module 1: CORE ADVOCATE SYSTEM
 
-### 📘 Epic Description
-The Core Advocate System forms the foundational identity layer of BuiltCred, establishing the dual-advocate architecture that distinguishes between Project Advocates (customers in the target project) and Brand Advocates (customers in other developer projects). This epic encompasses the classification logic, validation rules, type-specific dashboards, privacy controls, and cross-developer prevention mechanisms. It ensures that every customer is correctly categorized and that their referral eligibility, data access, and presentation to sales teams aligns with their advocate type. This system is critical as it influences all downstream features including referral eligibility, reward structures (future), and sales communication context.
+### 📘 Module Description
+The Core Advocate System forms the foundational identity layer of BuiltCred, establishing the dual-advocate architecture that distinguishes between Project Advocates (customers in the target project) and Brand Advocates (customers in other developer projects). This Module encompasses the classification logic, validation rules, type-specific dashboards, privacy controls, and cross-developer prevention mechanisms. It ensures that every customer is correctly categorized and that their referral eligibility, data access, and presentation to sales teams aligns with their advocate type. This system is critical as it influences all downstream features including referral eligibility, reward structures (future), and sales communication context.
 
 ---
 
@@ -375,10 +375,10 @@ This security-critical module prevents referrals across different developers, en
 
 ---
 
-## EPIC 2: REFERRAL ENGINE
+## Module 2: REFERRAL ENGINE
 
-### 📘 Epic Description
-The Referral Engine is the transactional core of BuiltCred, managing the complete lifecycle of referrals from submission through conversion. This epic encompasses multi-channel referral intake (web, WhatsApp, QR codes), lead capture and validation, duplicate prevention, attribution tracking, and automated reward calculation. It integrates advocate type validation, implements first-touch and last-touch attribution models, generates unique referral links and QR codes, and handles complex scenarios like re-engagement and status transitions. The engine must be highly reliable, performant, and scalable to handle high volumes while maintaining data integrity and audit trails for financial compliance.
+### 📘 Module Description
+The Referral Engine is the transactional core of BuiltCred, managing the complete lifecycle of referrals from submission through conversion. This Module encompasses multi-channel referral intake (web, WhatsApp, QR codes), lead capture and validation, duplicate prevention, attribution tracking, and automated reward calculation. It integrates advocate type validation, implements first-touch and last-touch attribution models, generates unique referral links and QR codes, and handles complex scenarios like re-engagement and status transitions. The engine must be highly reliable, performant, and scalable to handle high volumes while maintaining data integrity and audit trails for financial compliance.
 
 ---
 
@@ -1060,10 +1060,10 @@ CREATE INDEX idx_rewards_status ON rewards(payment_status);
 
 ---
 
-## EPIC 3: HOMEOWNER PORTAL
+## Module 3: HOMEOWNER PORTAL
 
-### 📘 Epic Description
-The Homeowner Portal is the advocate-facing application providing self-service access to referral management, reward tracking, and program participation. This epic delivers a personalized dashboard differentiated by advocate type, referral submission and tracking interfaces, reward visibility and statements, document management, profile settings, and notification centers. The portal emphasizes user experience, mobile responsiveness, and transparency to build trust and encourage ongoing participation. It implements strict privacy controls ensuring advocates only access their own data while providing comprehensive visibility into their referral pipeline, conversion status, and earnings. The portal serves as the primary engagement point for advocates and must balance simplicity with feature richness.
+### 📘 Module Description
+The Homeowner Portal is the advocate-facing application providing self-service access to referral management, reward tracking, and program participation. This Module delivers a personalized dashboard differentiated by advocate type, referral submission and tracking interfaces, reward visibility and statements, document management, profile settings, and notification centers. The portal emphasizes user experience, mobile responsiveness, and transparency to build trust and encourage ongoing participation. It implements strict privacy controls ensuring advocates only access their own data while providing comprehensive visibility into their referral pipeline, conversion status, and earnings. The portal serves as the primary engagement point for advocates and must balance simplicity with feature richness.
 
 ---
 
@@ -1554,10 +1554,10 @@ CREATE INDEX idx_notifications_user ON notifications(user_id, read_at);
 
 ---
 
-## EPIC 4: ADMIN PANEL
+## Module 4: ADMIN PANEL
 
-### 📘 Epic Description
-The Admin Panel is the developer's command center for program management, providing comprehensive tools for monitoring, managing, and optimizing the referral program. This epic encompasses analytics dashboards, advocate and referral management interfaces, conversion tracking, reward payment processing, project configuration, and reporting tools. The panel serves multiple user personas including program managers, sales leadership, finance teams, and system administrators. It emphasizes data-driven decision making through rich visualizations, supports bulk operations for efficiency, and maintains complete audit trails for compliance. The admin panel must balance power-user features with intuitive interfaces while ensuring proper role-based access controls.
+### 📘 Module Description
+The Admin Panel is the developer's command center for program management, providing comprehensive tools for monitoring, managing, and optimizing the referral program. This Module encompasses analytics dashboards, advocate and referral management interfaces, conversion tracking, reward payment processing, project configuration, and reporting tools. The panel serves multiple user personas including program managers, sales leadership, finance teams, and system administrators. It emphasizes data-driven decision making through rich visualizations, supports bulk operations for efficiency, and maintains complete audit trails for compliance. The admin panel must balance power-user features with intuitive interfaces while ensuring proper role-based access controls.
 
 ---
 
@@ -2141,10 +2141,10 @@ Vikram Singh,vikram@example.com,+919876543211,OSCFT,B-045,2024-06-20
 
 ---
 
-## EPIC 5: CRM INTEGRATION
+## Module 5: CRM INTEGRATION
 
-### 📘 Epic Description
-The CRM Integration epic establishes bidirectional communication between BuiltCred and developer CRM systems, enabling seamless lead handoff and status synchronization. This integration encompasses outbound webhooks to push referrals into CRM, inbound APIs for status updates and conversion marking, field mapping configuration, health monitoring, and support for multiple CRM platforms (Salesforce, HubSpot, Zoho, custom). The integration must be reliable (retry logic, queue-based processing), secure (authentication, encryption), and maintainable (health monitoring, alerting). It bridges the gap between advocate engagement and sales execution, ensuring no leads fall through the cracks while maintaining data consistency across systems.
+### 📘 Module Description
+The CRM Integration Module establishes bidirectional communication between BuiltCred and developer CRM systems, enabling seamless lead handoff and status synchronization. This integration encompasses outbound webhooks to push referrals into CRM, inbound APIs for status updates and conversion marking, field mapping configuration, health monitoring, and support for multiple CRM platforms (Salesforce, HubSpot, Zoho, custom). The integration must be reliable (retry logic, queue-based processing), secure (authentication, encryption), and maintainable (health monitoring, alerting). It bridges the gap between advocate engagement and sales execution, ensuring no leads fall through the cracks while maintaining data consistency across systems.
 
 ---
 
@@ -2605,10 +2605,10 @@ The Integration Health Monitor provides real-time visibility into CRM integratio
 
 ---
 
-## EPIC 6: NOTIFICATIONS & COMMUNICATION
+## Module 6: NOTIFICATIONS & COMMUNICATION
 
-### 📘 Epic Description
-The Notifications & Communication epic establishes multi-channel communication infrastructure to keep advocates informed throughout the referral journey. This encompasses email notifications for detailed communications, SMS for critical instant alerts, WhatsApp for rich media engagement, in-app notifications for persistent visibility, and preference management for user control. The system must be reliable (queue-based processing, retry logic), compliant (unsubscribe, opt-in management, WhatsApp policies), and performant (handle notification bursts, template caching). It balances timely communication with notification fatigue through intelligent frequency controls and user preferences. This epic is critical for advocate engagement, transparency, and program trust.
+### 📘 Module Description
+The Notifications & Communication Module establishes multi-channel communication infrastructure to keep advocates informed throughout the referral journey. This encompasses email notifications for detailed communications, SMS for critical instant alerts, WhatsApp for rich media engagement, in-app notifications for persistent visibility, and preference management for user control. The system must be reliable (queue-based processing, retry logic), compliant (unsubscribe, opt-in management, WhatsApp policies), and performant (handle notification bursts, template caching). It balances timely communication with notification fatigue through intelligent frequency controls and user preferences. This Module is critical for advocate engagement, transparency, and program trust.
 
 ---
 
@@ -3073,16 +3073,16 @@ The Notification Preferences module empowers users to control their notification
 **Performance Tests:** All APIs < 1s response time
 **Security Tests:** OWASP Top 10 coverage
 
-### Test Scenarios by Epic
+### Test Scenarios by Module
 
-#### Epic 1: Core Advocate System
+#### Module 1: Core Advocate System
 - [ ] Advocate type classification for all scenarios
 - [ ] Validation engine with all error cases
 - [ ] Cross-developer validation
 - [ ] Advocate type selection UI interactions
 - [ ] Dashboard differentiation by type
 
-#### Epic 2: Referral Engine
+#### Module 2: Referral Engine
 - [ ] Referral submission happy path
 - [ ] Referral submission validation errors
 - [ ] Duplicate detection within 90 days
@@ -3092,7 +3092,7 @@ The Notification Preferences module empowers users to control their notification
 - [ ] Reward calculation for all tiers
 - [ ] Status transitions (all valid paths)
 
-#### Epic 3: Homeowner Portal
+#### Module 3: Homeowner Portal
 - [ ] Login and authentication
 - [ ] Dashboard loading and data display
 - [ ] Referral list sorting and filtering
@@ -3102,7 +3102,7 @@ The Notification Preferences module empowers users to control their notification
 - [ ] Document download
 - [ ] Profile updates
 
-#### Epic 4: Admin Panel
+#### Module 4: Admin Panel
 - [ ] Admin login and authorization
 - [ ] Dashboard metrics accuracy
 - [ ] Advocate management (CRUD)
@@ -3113,7 +3113,7 @@ The Notification Preferences module empowers users to control their notification
 - [ ] Analytics and reports
 - [ ] Bulk operations
 
-#### Epic 5: CRM Integration
+#### Module 5: CRM Integration
 - [ ] Webhook configuration
 - [ ] Outbound webhook delivery
 - [ ] Webhook retry logic
@@ -3123,7 +3123,7 @@ The Notification Preferences module empowers users to control their notification
 - [ ] Field mapping
 - [ ] Integration health monitoring
 
-#### Epic 6: Notifications
+#### Module 6: Notifications
 - [ ] Email delivery
 - [ ] SMS delivery
 - [ ] WhatsApp delivery
