@@ -1,18 +1,52 @@
-# 📋 BuiltCred Referral System – MVP & v2.0 README
+# BuiltCred Referral System 🏗️
 
-## Overview
-BuiltCred is a **customer referral platform for real-estate developers** with a dual-advocate model, robust validation, CRM integrations, attribution tracking, and automated reward calculation.
+A modern, full-stack referral management system for real estate built with **React**, **Flask**, and **MongoDB**.
+
+## 🚀 Current Status
+
+### ✅ Running Services
+- **Frontend**: http://localhost:5174 (Vite + React + React Router)
+- **Backend**: http://localhost:5000 (Flask + Python)
+- **Database**: MongoDB (Ready to configure)
+
+### 📊 MVP Snapshot
+
+| Component | Status | URL |
+|-----------|--------|-----|
+| Frontend (React/Vite) | ✅ Running | http://localhost:5174 |
+| Backend (Flask) | ✅ Running | http://localhost:5000 |
+| Database (MongoDB) | ⏳ Ready | localhost:27017 |
+| API Health Check | ✅ Available | GET /api/health |
 
 ---
 
-## 📊 MVP Snapshot
+## 🎯 Features Implemented
 
-| Metric | Value |
-|------|------|
-| **Total Advocates** | 342 (187 Project + 155 Brand) |
-| **Active Referrals** | 456 (+23% this month) |
-| **Conversions** | 82 (18% conversion rate) |
-| **Rewards Paid** | ₹20.5L (across all projects) |
+### Frontend ✅
+- Responsive navbar with hamburger menu (mobile-friendly)
+- Home page with real-time API status indicator
+- About page with system information
+- 404 Not Found page
+- Modern gradient UI with smooth animations
+- Mobile-optimized design (works on all devices)
+- React Router for navigation
+
+### Backend ✅
+- Flask REST API with CORS support
+- MongoDB integration ready
+- Health check endpoints
+- Authentication routes (signup, login, logout)
+- Advocate management endpoints
+- Referral system with UUID-based links
+- Reward calculation with tiered system
+- Admin analytics endpoints
+- Structured logging and error handling
+
+### Architecture
+- Modular route structure (routes/ directory)
+- Configuration management via .env
+- Database abstraction with Flask-PyMongo
+- CORS middleware for frontend communication
 
 ---
 
