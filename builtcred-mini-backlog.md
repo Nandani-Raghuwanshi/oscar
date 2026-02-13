@@ -9,26 +9,25 @@
 
 ## 🎯 MODULE OVERVIEW
 
-| Module | Priority | Story Points | Sprints |
-|--------|----------|--------------|---------|
-| 1. Authentication & User Management | P0 | 34 | Sprint 1-2 |
-| 2. Advocate System | P0 | 55 | Sprint 2-4 |
-| 3. Referral Engine | P0 | 89 | Sprint 3-6 |
-| 4. Homeowner Portal | P0 | 68 | Sprint 5-8 |
-| 5. Admin Panel | P0 | 76 | Sprint 7-9 |
-| 6. CRM Integration | P1 | 55 | Sprint 8-10 |
-| 7. Notifications | P1 | 34 | Sprint 9-10 |
+| Module | Priority | Sprints |
+|--------|----------|---------|
+| 1. Authentication & User Management | P0 | Sprint 1-2 |
+| 2. Advocate System | P0 | Sprint 2-4 |
+| 3. Referral Engine | P0  Sprint 3-6 |
+| 4. Homeowner Portal | P0 | Sprint 5-8 |
+| 5. Admin Panel | P0 | Sprint 7-9 |
+| 6. CRM Integration | P1 | Sprint 8-10 |
+| 7. Notifications | P1 | Sprint 9-10 |
 
-**Total Story Points:** 411  
-**Velocity Target:** 40-45 points per sprint
+
 
 ---
 
 ## MODULE 1: AUTHENTICATION & USER MANAGEMENT
 
-**Sprints:** 1-2 | **Story Points:** 34 | **Priority:** P0
+**Sprints:** 1-2 |  **Priority:** P0
 
-### 1.1 User Registration & Login (Sprint 1 - 13 points)
+### 1.1 User Registration & Login
 
 **Tasks:**
 - [ ] Design registration form (name, email, phone, password)
@@ -67,7 +66,7 @@
 
 ---
 
-### 1.2 Password Management (Sprint 1 - 8 points)
+### 1.2 Password Management
 
 **Tasks:**
 - [ ] Create "Forgot Password" flow
@@ -102,7 +101,7 @@
 
 ---
 
-### 1.3 Role-Based Access Control (Sprint 2 - 13 points)
+### 1.3 Role-Based Access Control
 
 **Tasks:**
 - [ ] Define user roles: ADVOCATE, ADMIN, SALES_REP, SUPER_ADMIN
@@ -163,9 +162,9 @@ SUPER_ADMIN:
 
 ## MODULE 2: ADVOCATE SYSTEM
 
-**Sprints:** 2-4 | **Story Points:** 55 | **Priority:** P0
+**Sprints:** 2-4 |  **Priority:** P0
 
-### 2.1 Advocate Type Classification (Sprint 2 - 13 points)
+### 2.1 Advocate Type Classification
 
 **Tasks:**
 - [ ] Create advocate_type enum (PROJECT_ADVOCATE, BRAND_ADVOCATE)
@@ -216,7 +215,7 @@ function classifyAdvocate(customerId, targetProjectId) {
 
 ---
 
-### 2.2 Advocate Eligibility Validation (Sprint 3 - 21 points)
+### 2.2 Advocate Eligibility Validation
 
 **Tasks:**
 - [ ] Build validation service
@@ -266,7 +265,7 @@ Validation Checks:
 
 ---
 
-### 2.3 Advocate Dashboard Differentiation (Sprint 4 - 21 points)
+### 2.3 Advocate Dashboard Differentiation
 
 **Tasks:**
 - [ ] Design PROJECT_ADVOCATE dashboard
@@ -316,9 +315,9 @@ BRAND_ADVOCATE Dashboard:
 
 ## MODULE 3: REFERRAL ENGINE
 
-**Sprints:** 3-6 | **Story Points:** 89 | **Priority:** P0
+**Sprints:** 3-6 |  **Priority:** P0
 
-### 3.1 Referral Submission Form (Sprint 3 - 13 points)
+### 3.1 Referral Submission Form (Sprint 3 )
 
 **Tasks:**
 - [ ] Design referral form UI
@@ -372,7 +371,7 @@ Form Fields:
 
 ---
 
-### 3.2 Backend Referral Processing (Sprint 4 - 21 points)
+### 3.2 Backend Referral Processing (Sprint 4 )
 
 **Tasks:**
 - [ ] Create referral API endpoint
@@ -455,7 +454,7 @@ CREATE INDEX idx_referrals_phone_project ON referrals(lead_phone, target_project
 
 ---
 
-### 3.3 Referral Link & QR Code (Sprint 5 - 21 points)
+### 3.3 Referral Link & QR Code (Sprint 5 )
 
 **Tasks:**
 - [ ] Create referral link generator
@@ -525,7 +524,7 @@ CREATE INDEX idx_links_code ON referral_links(link_code);
 
 ---
 
-### 3.4 Lead Capture Landing Page (Sprint 5 - 13 points)
+### 3.4 Lead Capture Landing Page (Sprint 5 )
 
 **Tasks:**
 - [ ] Design landing page layout
@@ -588,7 +587,7 @@ POST /api/v1/leads/capture
 
 ---
 
-### 3.5 Duplicate Detection & Attribution (Sprint 6 - 21 points)
+### 3.5 Duplicate Detection & Attribution (Sprint 6 )
 
 **Tasks:**
 - [ ] Implement duplicate detection logic (90-day window)
@@ -672,9 +671,9 @@ lead.last_touch_advocate_type = advocate_type;
 
 ## MODULE 4: HOMEOWNER PORTAL
 
-**Sprints:** 5-8 | **Story Points:** 68 | **Priority:** P0
+**Sprints:** 5-8 |  **Priority:** P0
 
-### 4.1 Advocate Dashboard (Sprint 5 - 13 points)
+### 4.1 Advocate Dashboard (Sprint 5 )
 
 **Tasks:**
 - [ ] Design dashboard layout
@@ -734,7 +733,7 @@ Response: {
 
 ---
 
-### 4.2 Referral List & Detail View (Sprint 6 - 21 points)
+### 4.2 Referral List & Detail View
 
 **Tasks:**
 - [ ] Build referral list table
@@ -814,7 +813,7 @@ Response: {
 
 ---
 
-### 4.3 Rewards Dashboard (Sprint 7 - 13 points)
+### 4.3 Rewards Dashboard
 
 **Tasks:**
 - [ ] Design rewards display
@@ -889,7 +888,7 @@ Response: {
 
 ---
 
-### 4.4 Profile & Document Management (Sprint 8 - 21 points)
+### 4.4 Profile & Document Management
 
 **Tasks:**
 - [ ] Build profile view/edit page
@@ -965,9 +964,9 @@ Notification Preferences:
 
 ## MODULE 5: ADMIN PANEL
 
-**Sprints:** 7-9 | **Story Points:** 76 | **Priority:** P0
 
-### 5.1 Admin Dashboard & Analytics (Sprint 7 - 21 points)
+
+### 5.1 Admin Dashboard & Analytics
 
 **Tasks:**
 - [ ] Design admin dashboard layout
@@ -1050,7 +1049,7 @@ Response: {
 
 ---
 
-### 5.2 Advocate Management (Sprint 8 - 21 points)
+### 5.2 Advocate Management
 
 **Tasks:**
 - [ ] Build advocate list view
@@ -1121,7 +1120,7 @@ Sunita Mehta,sunita@example.com,+919876543210,OSANC,A-127,2025-03-15
 
 ---
 
-### 5.3 Referral & Conversion Management (Sprint 9 - 34 points)
+### 5.3 Referral & Conversion Management
 
 **Tasks:**
 - [ ] Build admin referral list
@@ -1220,9 +1219,9 @@ Payment Due: 30 days from booking
 
 ## MODULE 6: CRM INTEGRATION
 
-**Sprints:** 8-10 | **Story Points:** 55 | **Priority:** P1
+**Sprints:** 8-10 | **Priority:** P1
 
-### 6.1 Webhook Configuration (Sprint 8 - 13 points)
+### 6.1 Webhook Configuration
 
 **Tasks:**
 - [ ] Build webhook config UI
@@ -1286,7 +1285,7 @@ POST /api/v1/admin/integrations/webhook/test
 
 ---
 
-### 6.2 Outbound Webhook (Sprint 9 - 21 points)
+### 6.2 Outbound Webhook
 
 **Tasks:**
 - [ ] Implement webhook service
@@ -1365,7 +1364,7 @@ Body: {
 
 ---
 
-### 6.3 Inbound API (Sprint 10 - 21 points)
+### 6.3 Inbound API
 
 **Tasks:**
 - [ ] Create status update API endpoint
@@ -1460,9 +1459,9 @@ Response: {
 
 ## MODULE 7: NOTIFICATIONS
 
-**Sprints:** 9-10 | **Story Points:** 34 | **Priority:** P1
+**Sprints:** 9-10 |  **Priority:** P1
 
-### 7.1 Email Notification System (Sprint 9 - 13 points)
+### 7.1 Email Notification System
 
 **Tasks:**
 - [ ] Integrate email service (SendGrid/AWS SES)
@@ -1529,7 +1528,7 @@ Tracking:
 
 ---
 
-### 7.2 SMS & WhatsApp Notifications (Sprint 10 - 13 points)
+### 7.2 SMS & WhatsApp Notifications
 
 **Tasks:**
 - [ ] Integrate SMS service (Twilio/AWS SNS)
@@ -1599,7 +1598,7 @@ Template Approval:
 
 ---
 
-### 7.3 In-App Notifications (Sprint 10 - 8 points)
+### 7.3 In-App Notifications
 
 **Tasks:**
 - [ ] Build notification center UI
@@ -1741,7 +1740,7 @@ WebSocket Events:
 
 ## 📊 SPRINT VELOCITY & TIMELINE
 
-| Sprint | Weeks | Focus Areas | Story Points |
+| Sprint | Weeks | Focus Areas |
 |--------|-------|-------------|--------------|
 | Sprint 1 | 1-2 | Authentication Setup | 34 |
 | Sprint 2 | 3-4 | Auth + Advocate Classification | 39 |
@@ -1754,8 +1753,7 @@ WebSocket Events:
 | Sprint 9 | 17-18 | Conversions + Outbound API + Email | 68 |
 | Sprint 10 | 19-20 | Inbound API + SMS/WhatsApp + In-App | 42 |
 
-**Total Duration:** 20 weeks (5 months)  
-**Total Story Points:** 476
+
 
 ---
 
