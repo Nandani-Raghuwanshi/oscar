@@ -1,67 +1,58 @@
-from flask import Flask, current_app
+"""
+Flask Application Entry Point
+
+Task: Complete Flask backend setup
+- Initialize Flask app with CORS
+- Load configuration from config.py
+- Register all API routes
+- Implement error handling middleware
+- Connect to MongoDB
+"""
+
+from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_pymongo import PyMongo
-from config import config
-import os
-import sys
+from config import Config
 
-mongo = PyMongo()
+# Initialize Flask app
+app = Flask(__name__)
+app.config.from_object(Config)
 
-def get_db():
-    return mongo.db
+# Enable CORS
+CORS(app)
 
-def create_app(config_name=None):
-    if config_name is None:
-        config_name = os.getenv('FLASK_ENV', 'development')
-    
-    app = Flask(__name__)
-    app.config.from_object(config[config_name])
-    
-    mongo.init_app(app)
-    
-    cors_origins = app.config.get('CORS_ORIGINS', '').split(',')
-    CORS(app, origins=cors_origins, supports_credentials=True)
-    
-    from routes.auth_routes import auth_bp
-    from routes.advocate_routes import advocate_bp
-    from routes.referral_routes import referral_bp
-    from routes.reward_routes import reward_bp
-    from routes.admin_routes import admin_bp
-    from routes.health_routes import health_bp
-    
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(advocate_bp)
-    app.register_blueprint(referral_bp)
-    app.register_blueprint(reward_bp)
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(health_bp)
-    
-    @app.errorhandler(404)
-    def not_found(error):
-        return {'error': 'Not Found', 'message': 'The requested resource was not found'}, 404
-    
-    @app.errorhandler(500)
-    def internal_error(error):
-        return {'error': 'Internal Server Error', 'message': 'An internal server error occurred'}, 500
-    
-    @app.before_request
-    def before_request():
-        pass
-    
-    return app
+# Register blueprints for different route modules
+from routes.auth_routes import auth_bp
+from routes.health_routes import health_bp
+from routes.admin_routes import admin_bp
+
+# Routes needed:
+# - routes/auth_routes.py (signup, login, logout) ✓
+# - routes/advocate_routes.py (register, get, update)
+# - routes/referral_routes.py (create link, submit lead, get referrals)
+# - routes/reward_routes.py (get rewards, pending, paid)
+# - routes/project_routes.py (get projects)
+# - routes/admin_routes.py (admin analytics, user validation) ✓
+# - routes/health_routes.py (health check) ✓
+
+# Register blueprints
+app.register_blueprint(auth_bp, url_prefix='/api/auth')
+app.register_blueprint(health_bp, url_prefix='/api')
+app.register_blueprint(admin_bp, url_prefix='/api/admin')
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    return jsonify({"error": "Resource not found"}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors"""
+    return jsonify({"error": "Internal server error"}), 500
+
+@app.errorhandler(400)
+def bad_request(error):
+    """Handle 400 errors"""
+    return jsonify({"error": "Bad request"}), 400
 
 if __name__ == '__main__':
-    app = create_app()
-    print("\n" + "="*60)
-    print("🚀 BuiltCred Backend Server Starting")
-    print("="*60)
-    print(f"Environment: {app.config.get('FLASK_ENV', 'development')}")
-    print(f"MongoDB URI: {app.config.get('MONGO_URI', 'Not configured')}")
-    print(f"CORS Origins: {app.config.get('CORS_ORIGINS', 'Not configured')}")
-    print("="*60)
-    print("📡 Server running on http://localhost:5000")
-    print("🏥 Health check: GET http://localhost:5000/api/health")
-    print("="*60 + "\n")
-    
     app.run(debug=True, host='0.0.0.0', port=5000)
-

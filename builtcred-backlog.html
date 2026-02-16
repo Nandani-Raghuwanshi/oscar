@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>BuiltCred – Product Backlog (MVP v2.0)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --accent: #0f766e;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+        }
+
+        header h1 {
+            margin: 0 0 6px;
+        }
+
+        header p {
+            margin: 2px 0;
+            opacity: 0.95;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        h3 {
+            margin-bottom: 6px;
+        }
+
+        h4 {
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        details {
+            margin-top: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            background: #fafafa;
+        }
+
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        pre {
+            background: #0f172a;
+            color: #e5e7eb;
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+
+        code {
+            color: #e5e7eb;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            padding: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>BuiltCred – Product Backlog</h1>
+        <p><strong>MVP v2.0 · Phase 1 (Months 1–3)</strong></p>
+        <p>Last Updated: February 13, 2026 · Status: Development Phase</p>
+    </header>
+
+    <main>
+
+        <section>
+            <h2>🎯 Product Vision</h2>
+            <p>
+                BuiltCred is a referral management platform for real estate developers that enables
+                customer advocacy through a dual-advocate system (Project Advocates & Brand Advocates),
+                providing validation, tracking, reward management, and CRM integration.
+            </p>
+        </section>
+
+        <section>
+            <h2>📊 Module Overview</h2>
+            <ul>
+                <li><strong>Module 1:</strong> Core Advocate System <span class="tag">P0</span></li>
+                <li><strong>Module 2:</strong> Referral Engine <span class="tag">P0</span></li>
+                <li><strong>Module 3:</strong> Homeowner Portal <span class="tag">P0</span></li>
+                <li><strong>Module 4:</strong> Admin Panel <span class="tag">P0</span></li>
+                <li><strong>Module 5:</strong> CRM Integration <span class="tag">P1</span></li>
+                <li><strong>Module 6:</strong> Notifications & Communication <span class="tag">P1</span></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Module 1: Core Advocate System</h2>
+            <p class="meta">Priority: P0 · Sprints: 1–3</p>
+
+            <details open>
+                <summary>📘 Module Description</summary>
+                <p>
+                    Foundational identity layer defining Project Advocates and Brand Advocates.
+                    Controls eligibility, privacy, dashboards, analytics segmentation,
+                    and cross-developer prevention.
+                </p>
+            </details>
+
+            <details>
+                <summary>1.1 Advocate Type Classification</summary>
+
+                <h4>User Story</h4>
+                <p><strong>As a</strong> developer/admin<br>
+                    <strong>I want</strong> automatic advocate classification<br>
+                    <strong>So that</strong> eligibility and tracking are consistent
+                </p>
+
+                <h4>Acceptance Criteria</h4>
+                <ul>
+                    <li>PROJECT_ADVOCATE and BRAND_ADVOCATE defined</li>
+                    <li>Stored in customer profile</li>
+                    <li>Badge visible across UI</li>
+                    <li>Historical tracking maintained</li>
+                </ul>
+
+                <h4>Technical Requirements</h4>
+                <ul>
+                    <li>`advocate_type` enum field</li>
+                    <li>Indexed for analytics</li>
+                    <li>Migration for existing users</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>1.2 Advocate Type Validation Engine</summary>
+
+                <ul>
+                    <li>Runs on every referral submission</li>
+                    <li>Cross-developer validation</li>
+                    <li>Auto-correction when possible</li>
+                    <li>Audit logging</li>
+                </ul>
+
+                <pre><code>
+validateAdvocateEligibility(userId, selectedType, targetProjectId)
+</code></pre>
+            </details>
+
+            <details>
+                <summary>1.3 Advocate Type Selection UI</summary>
+                <ul>
+                    <li>Radio buttons</li>
+                    <li>Clear help text</li>
+                    <li>WCAG 2.1 AA compliant</li>
+                    <li>Mobile responsive</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>1.4 Dashboard Differentiation</summary>
+                <ul>
+                    <li>Role-based rendering</li>
+                    <li>Strict data isolation</li>
+                    <li>Eligible projects only</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>1.5 Reporting & Analytics</summary>
+                <ul>
+                    <li>Metrics by advocate type</li>
+                    <li>Conversion & reward comparisons</li>
+                    <li>CSV export</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>1.6 Sales Context Enrichment</summary>
+                <pre><code>
+if PROJECT_ADVOCATE:
+  "Referred by fellow resident"
+else:
+  "Referred by existing customer"
+</code></pre>
+            </details>
+
+            <details>
+                <summary>1.7 Cross-Developer Validation</summary>
+                <ul>
+                    <li>Developer ID matching</li>
+                    <li>Rate limiting</li>
+                    <li>Fraud audit logs</li>
+                </ul>
+            </details>
+        </section>
+
+        <section>
+            <h2>Module 2: Referral Engine</h2>
+            <p class="meta">Priority: P0 · Sprints: 2–5</p>
+
+            <details open>
+                <summary>📘 Module Description</summary>
+                <p>
+                    The Referral Engine is the core transaction and orchestration layer of BuiltCred.
+                    It is responsible for capturing referrals from multiple channels, validating
+                    advocate eligibility, preventing fraud and duplicates, tracking attribution,
+                    managing referral lifecycles, and triggering downstream workflows such as CRM
+                    sync, notifications, and reward calculation.
+                </p>
+            </details>
+
+            <details>
+                <summary>2.1 Referral Submission Form</summary>
+                <ul>
+                    <li>Name, phone, email (optional)</li>
+                    <li>Advocate type selection</li>
+                    <li>Target project</li>
+                    <li>Client-side validation</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.2 Backend Referral Processing</summary>
+
+                <pre><code>
+REF-YYYY-NNNNNN
+</code></pre>
+
+                <ul>
+                    <li>Duplicate detection</li>
+                    <li>ACID transactions</li>
+                    <li>CRM webhook</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.3 Referral Links</summary>
+                <pre><code>
+https://builtcred.com/ref/PROJECTCODE-UUID
+</code></pre>
+            </details>
+
+            <details>
+                <summary>2.4 QR Codes</summary>
+                <ul>
+                    <li>512x512 PNG</li>
+                    <li>Error correction level H</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.5 Lead Capture Landing Page</summary>
+                <ul>
+                    <li>SEO optimized</li>
+                    <li>Project highlights</li>
+                    <li>Lead capture form</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.6 Duplicate Detection</summary>
+                <pre><code>
+phone + project_id within 90 days
+</code></pre>
+            </details>
+
+            <details>
+                <summary>2.7 Attribution</summary>
+                <ul>
+                    <li>First-touch rewards (MVP)</li>
+                    <li>Last-touch analytics</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.8 Multi-Channel Tracking</summary>
+                <ul>
+                    <li>WhatsApp, SMS, Email, QR</li>
+                    <li>UTM support</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.9 Status Management</summary>
+                <ul>
+                    <li>NEW → CONVERTED</li>
+                    <li>Status history audit</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>2.10 Reward Calculation</summary>
+                <pre><code>
+Base: ₹25K
+₹1Cr+: ₹35K
+₹1.5Cr+: ₹50K
+TDS: 10%
+</code></pre>
+            </details>
+        </section>
+
+        <section>
+            <h2>Module 3: Homeowner Portal</h2>
+            <p class="meta">Priority: P0 · Sprints: 4–7</p>
+
+            <details open>
+                <summary>📘 Module Description</summary>
+                <p>
+                    The Homeowner Portal is the primary interface for advocates to manage referrals,
+                    track conversions, view rewards, and maintain their profile.
+                    It is designed to be mobile-first, intuitive, and transparent to build trust
+                    and encourage repeat referrals.
+                </p>
+            </details>
+
+            <details>
+                <summary>3.1 Advocate Dashboard</summary>
+
+                <h4>User Story</h4>
+                <p>
+                    <strong>As an</strong> advocate<br>
+                    <strong>I want</strong> a single dashboard view<br>
+                    <strong>So that</strong> I can quickly understand my referral and reward status
+                </p>
+
+                <h4>Features</h4>
+                <ul>
+                    <li>Total referrals count</li>
+                    <li>Active / converted / lost referrals</li>
+                    <li>Total rewards earned & paid</li>
+                    <li>Pending rewards</li>
+                    <li>Advocate type badge (Project / Brand)</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.2 Referral List & Detail View</summary>
+
+                <ul>
+                    <li>Paginated referral list</li>
+                    <li>Status filters (NEW, CONTACTED, VISIT_DONE, CONVERTED, LOST)</li>
+                    <li>Search by lead name / phone</li>
+                    <li>Referral detail page with timeline</li>
+                    <li>Read-only CRM status sync</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.3 Referral Submission</summary>
+
+                <ul>
+                    <li>Simple referral form</li>
+                    <li>Advocate type selection</li>
+                    <li>Target project selection</li>
+                    <li>Inline validation</li>
+                    <li>Duplicate warning messages</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.4 Rewards Dashboard</summary>
+
+                <ul>
+                    <li>Total rewards earned</li>
+                    <li>Total rewards paid</li>
+                    <li>Pending rewards</li>
+                    <li>Reward breakup by referral</li>
+                    <li>TDS deduction visibility</li>
+                </ul>
+
+                <pre><code>
+Gross Reward: ₹50,000
+TDS (10%): ₹5,000
+Net Payable: ₹45,000
+</code></pre>
+            </details>
+
+            <details>
+                <summary>3.5 Referral Links & QR Codes</summary>
+
+                <ul>
+                    <li>Unique referral link per advocate</li>
+                    <li>Project-wise referral links</li>
+                    <li>QR code generation</li>
+                    <li>Download & share options</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.6 Notifications & Updates</summary>
+
+                <ul>
+                    <li>Status change notifications</li>
+                    <li>Reward approval notifications</li>
+                    <li>Payout completion alerts</li>
+                    <li>System announcements</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.7 Documents & Statements</summary>
+
+                <ul>
+                    <li>Reward statements</li>
+                    <li>Payout receipts</li>
+                    <li>Tax-related documents</li>
+                    <li>Download as PDF</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.8 Profile Management</summary>
+
+                <ul>
+                    <li>Basic profile update</li>
+                    <li>Bank details (for payouts)</li>
+                    <li>PAN details (masked view)</li>
+                    <li>Communication preferences</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>3.9 Security & Access</summary>
+
+                <ul>
+                    <li>OTP-based authentication</li>
+                    <li>Session management</li>
+                    <li>Device-level logout</li>
+                    <li>Audit logs for sensitive changes</li>
+                </ul>
+            </details>
+
+        </section>
+
+
+        <section>
+            <h2>Module 4: Admin Panel</h2>
+            <p class="meta">Priority: P0 · Sprints: 5–8</p>
+
+            <details open>
+                <summary>📘 Module Description</summary>
+                <p>
+                    The Admin Panel provides internal teams with full control over advocates,
+                    referrals, rewards, and system configuration.
+                    It acts as the operational backbone for sales, finance, and management teams.
+                </p>
+            </details>
+
+            <details>
+                <summary>4.1 Admin Dashboard</summary>
+
+                <ul>
+                    <li>Total advocates (Project vs Brand)</li>
+                    <li>Total referrals</li>
+                    <li>Active conversions</li>
+                    <li>Total rewards payable</li>
+                    <li>Monthly performance trends</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.2 Advocate Management</summary>
+
+                <ul>
+                    <li>View advocate profiles</li>
+                    <li>Manual advocate type override (with audit)</li>
+                    <li>Block / unblock advocates</li>
+                    <li>Merge duplicate advocates</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.3 Referral Management</summary>
+
+                <ul>
+                    <li>Global referral list</li>
+                    <li>Advanced filters (project, status, advocate type)</li>
+                    <li>Referral detail view</li>
+                    <li>Manual status correction (restricted)</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.4 Conversion Management</summary>
+
+                <ul>
+                    <li>Mark referral as converted</li>
+                    <li>Attach booking value</li>
+                    <li>Assign unit / inventory reference</li>
+                    <li>Lock conversion after approval</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.5 Reward Configuration</summary>
+
+                <ul>
+                    <li>Project-wise reward slabs</li>
+                    <li>Brand advocate overrides</li>
+                    <li>TDS percentage configuration</li>
+                    <li>Effective date handling</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.6 Reward Approval Workflow</summary>
+
+                <ul>
+                    <li>Auto-calculated rewards</li>
+                    <li>Manual approval / rejection</li>
+                    <li>Approval comments</li>
+                    <li>Status locking after approval</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.7 Payout Management</summary>
+
+                <ul>
+                    <li>Payout batch creation</li>
+                    <li>Export payout files</li>
+                    <li>Payout status tracking</li>
+                    <li>Manual payout marking</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.8 Reports & Exports</summary>
+
+                <ul>
+                    <li>Advocate performance report</li>
+                    <li>Referral funnel report</li>
+                    <li>Reward liability report</li>
+                    <li>CSV / Excel exports</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.9 Audit Logs</summary>
+
+                <ul>
+                    <li>Admin actions tracking</li>
+                    <li>Reward changes</li>
+                    <li>Status overrides</li>
+                    <li>User & timestamp visibility</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>4.10 Role & Access Control</summary>
+
+                <ul>
+                    <li>Admin roles (Sales, Finance, Super Admin)</li>
+                    <li>Permission-based access</li>
+                    <li>Read-only roles</li>
+                    <li>Environment-level isolation</li>
+                </ul>
+            </details>
+
+        </section>
+
+
+    </main>
+
+    <footer>
+        © BuiltCred – Internal Product Documentation
+    </footer>
+
+</body>
+
+</html>

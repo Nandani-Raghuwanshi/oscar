@@ -1,69 +1,101 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react'
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
-import Nav from './components/Nav'
-import Loader from './components/Loader'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Nav from './components/Nav';
+import ProtectedRoute from './components/ProtectedRoute';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import About from './pages/About';
+import NotFound from './pages/NotFound';
+import ReferralSelectType from './pages/referral/ReferralSelectType';
+import ReferralSelectProject from './pages/referral/ReferralSelectProject';
+import ReferralLeadForm from './pages/referral/ReferralLeadForm';
+import ReferralLinkQR from './pages/referral/ReferralLinkQR';
+import Dashboard from './pages/dashboard/Dashboard';
+import MyReferrals from './pages/dashboard/MyReferrals';
+import MyProjects from './pages/dashboard/MyProjects';
+import Rewards from './pages/dashboard/Rewards';
+import Documents from './pages/dashboard/Documents';
+import SharePromote from './pages/dashboard/SharePromote';
+import AdminPanel from './pages/admin/AdminPanel';
+import './App.css';
 
-const Home = lazy(() => import('./pages/Home'))
-const About = lazy(() => import('./pages/About'))
-const NotFound = lazy(() => import('./pages/NotFound'))
-const Login = lazy(() => import('./pages/Login'))
-const Signup = lazy(() => import('./pages/Signup'))
-const AdvocateDashboard = lazy(() => import('./pages/AdvocateDashboard'))
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
-const RewardsDashboard = lazy(() => import('./pages/RewardsDashboard'))
-const ReferralForm = lazy(() => import('./pages/ReferralForm'))
-
-// Protected Route Component
-function ProtectedRoute({ children }) {
-    const { user, loading } = useAuth()
-
-    if (loading) {
-        return <Loader />
-    }
-
-    if (!user) {
-        return <Navigate to="/login" replace />
-    }
-
-    return children
-}
-
-function AppRoutes() {
-    const { isAuthenticated } = useAuth()
-
+function App() {
     return (
-        <>
+        <Router>
             <Nav />
-            <main>
-                <Suspense fallback={<Loader />}>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/about" element={<About />} />
+            <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/about" element={<About />} />
 
-                        {/* Auth Routes */}
-                        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
-                        <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/dashboard" replace />} />
+                {/* Referral Engine Routes - Protected */}
+                <Route path="/referral/select-type" element={
+                    <ProtectedRoute>
+                        <ReferralSelectType />
+                    </ProtectedRoute>
+                } />
+                <Route path="/referral/select-project" element={
+                    <ProtectedRoute>
+                        <ReferralSelectProject />
+                    </ProtectedRoute>
+                } />
+                <Route path="/referral/lead-form" element={
+                    <ProtectedRoute>
+                        <ReferralLeadForm />
+                    </ProtectedRoute>
+                } />
+                <Route path="/referral/link-qr" element={
+                    <ProtectedRoute>
+                        <ReferralLinkQR />
+                    </ProtectedRoute>
+                } />
 
-                        {/* Protected Routes */}
-                        <Route path="/dashboard" element={<ProtectedRoute><AdvocateDashboard /></ProtectedRoute>} />
-                        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                        <Route path="/rewards" element={<ProtectedRoute><RewardsDashboard /></ProtectedRoute>} />
-                        <Route path="/referral/new" element={<ProtectedRoute><ReferralForm /></ProtectedRoute>} />
+                {/* Dashboard Routes - Protected */}
+                <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                        <Dashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/dashboard/my-referrals" element={
+                    <ProtectedRoute>
+                        <MyReferrals />
+                    </ProtectedRoute>
+                } />
+                <Route path="/dashboard/projects" element={
+                    <ProtectedRoute>
+                        <MyProjects />
+                    </ProtectedRoute>
+                } />
+                <Route path="/dashboard/rewards" element={
+                    <ProtectedRoute>
+                        <Rewards />
+                    </ProtectedRoute>
+                } />
+                <Route path="/dashboard/documents" element={
+                    <ProtectedRoute>
+                        <Documents />
+                    </ProtectedRoute>
+                } />
+                <Route path="/dashboard/share" element={
+                    <ProtectedRoute>
+                        <SharePromote />
+                    </ProtectedRoute>
+                } />
 
-                        {/* 404 */}
-                        <Route path="*" element={<NotFound />} />
-                    </Routes>
-                </Suspense>
-            </main>
-        </>
-    )
+                {/* Admin Routes - Protected (Admin Only) */}
+                <Route path="/admin" element={
+                    <ProtectedRoute requiredRole="admin">
+                        <AdminPanel />
+                    </ProtectedRoute>
+                } />
+
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
+            </Routes>
+        </Router>
+    );
 }
 
-export default function App() {
-    return (
-        <AuthProvider>
-            <AppRoutes />
-        </AuthProvider>
-    )
-}
+export default App;

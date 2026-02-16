@@ -298,11 +298,54 @@ function calculateReward(plotValue) {
 
 ---
 
+## � Role-Based Access Control (RBAC) System
+
+The platform now includes a comprehensive RBAC system with user verification and admin approval workflows.
+
+### User Roles
+- **Regular User**: Immediate access to all features after signup
+- **Project Advocate**: Requires admin approval before accessing features
+- **Brand Advocate**: Requires admin approval before accessing features
+- **Admin**: Full system access and user management capabilities
+
+### User Status Workflow
+- **Approved**: User has full access to features
+- **Pending**: User registration submitted, waiting for admin approval
+- **Rejected**: User registration was rejected, no access to features
+
+### Key Features
+✅ User registration with role selection
+✅ Email and password validation with strength requirements
+✅ Admin approval/rejection workflow for advocates
+✅ Protected routes based on authentication and user role
+✅ Admin dashboard for managing user registrations
+✅ Status-aware navigation and messaging
+✅ Comprehensive error handling and user feedback
+
+### Documentation
+- **[RBAC_STATUS.md](RBAC_STATUS.md)**: Complete implementation status and summary
+- **[RBAC_IMPLEMENTATION.md](RBAC_IMPLEMENTATION.md)**: Full technical documentation with API endpoints and workflows
+- **[TESTING_CHECKLIST.md](TESTING_CHECKLIST.md)**: Comprehensive testing checklist with 61+ test cases
+- **[RBAC_QUICK_TEST.md](RBAC_QUICK_TEST.md)**: Quick 10-minute testing guide
+
+### Quick Start for RBAC Testing
+1. Create a new user as "Project Advocate"
+2. Login to admin panel at `/admin`
+3. Review and approve the pending user
+4. Now the advocate can access all features
+
+See [RBAC_QUICK_TEST.md](RBAC_QUICK_TEST.md) for more details.
+
+---
+
 ## 🚀 Roadmap (Phase 2+)
 - Differential rewards by advocate type
 - Advanced fraud detection
 - Broker-assisted referrals (separate program)
 - In-app wallet & payout tracking
+- Email notifications for approvals/rejections
+- Two-factor authentication
+- Advanced admin analytics
 
 ---
 
