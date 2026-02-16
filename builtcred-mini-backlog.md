@@ -1,9 +1,6 @@
 # BuiltCred Mini Product Backlog
 ## MVP Sprint Plan (10 Sprints / 20 Weeks)
 
-**Version:** 2.0  
-**Last Updated:** February 13, 2026  
-**Sprint Duration:** 2 weeks
 
 ---
 
@@ -1803,8 +1800,3 @@ WebSocket Events:
 - Security vulnerabilities discovered
 
 ---
-
-**Document Owner:** Product Manager  
-**Last Updated:** February 13, 2026  
-**Next Review:** End of each sprint  
-**Contact:** pm@builtcred.com
