@@ -4,14 +4,30 @@ Quick reference for testing the RBAC implementation without reading the full doc
 
 ## Quick Start (10 minutes)
 
-### Step 1: Setup (Assuming backend and frontend already running)
+### Step 1: Seed Test Users (2 minutes)
+1. Run the seeding script to create test users:
+   ```bash
+   # Linux/Mac
+   ./seed_roles.sh
+   
+   # Windows
+   seed_roles.bat
+   
+   # Or directly with Python
+   python3 seed_roles.py
+   ```
+2. This creates 6 test accounts with different roles and statuses
+3. See [SEED_USERS_GUIDE.md](SEED_USERS_GUIDE.md) for details
+
+### Step 2: Setup Services (Assuming complete setup)
 1. Ensure MongoDB is running
 2. Backend: `python server/app.py` (running on :5000)
 3. Frontend: `npm run dev` (running on :5173)
 
-### Step 2: Create Test Admin Account (ONE TIME ONLY)
+### Step 3: Create Test Admin Account (ONE TIME ONLY)
 ```bash
-# In MongoDB:
+# MongoDB already has admin from seeding script
+# If not, create manually:
 db.users.insertOne({
   email: "admin@test.com",
   password: "$2b$12$...", // bcrypt hash of "AdminPass123"
@@ -23,22 +39,11 @@ db.users.insertOne({
 })
 ```
 
-Or manually via mongo shell:
-```javascript
-use oscars
-db.users.insertOne({
-  "email": "admin@test.com",
-  "full_name": "Test Admin",
-  "role": "admin",
-  "status": "approved",
-  "is_active": true,
-  "created_at": new Date()
-})
-```
+Or the seeding script already created it. Just use:
+- Email: `admin@test.com`
+- Password: `AdminPass123`
 
-Then manually hash and update password in database.
-
-### Step 3: Test Regular User (2 mins)
+### Step 4: Test Regular User (2 mins)
 ```
 1. Go to localhost:5173/signup
 2. Select "Regular User"
@@ -47,7 +52,7 @@ Then manually hash and update password in database.
 5. ✅ Should auto-redirect to dashboard
 ```
 
-### Step 4: Test Pending Advocate (2 mins)
+### Step 5: Test Pending Advocate (2 mins)
 ```
 1. Go to localhost:5173/signup
 2. Select "Project Advocate"
@@ -59,7 +64,7 @@ Then manually hash and update password in database.
 8. ✅ Should show orange "pending" message
 ```
 
-### Step 5: Test Admin Approval (2 mins)
+### Step 6: Test Admin Approval (2 mins)
 ```
 1. Login as admin: admin@test.com / AdminPass123
 2. Go to /admin
@@ -72,7 +77,7 @@ Then manually hash and update password in database.
 9. ✅ Should redirect to dashboard successfully
 ```
 
-### Step 6: Test Admin Rejection (2 mins)
+### Step 7: Test Admin Rejection (2 mins)
 ```
 1. Signup new advocate: bob.test@example.com / TestPass123 / Bob Advocate
 2. Login as admin

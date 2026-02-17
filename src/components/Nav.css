@@ -66,12 +66,13 @@
 
 .dropdown {
     position: relative;
+    display: inline-block;
 }
 
 .dropdown-menu {
     display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% - 5px);
     left: 0;
     background: white;
     list-style: none;
@@ -79,7 +80,13 @@
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 200px;
-    margin-top: 0.5rem;
+    margin: 0;
+    z-index: 1000;
+}
+
+.dropdown>.nav-link {
+    padding-bottom: 10px;
+    margin-bottom: -10px;
 }
 
 .dropdown:hover .dropdown-menu {
