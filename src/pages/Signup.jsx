@@ -1,10 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useLoginRedirect } from '../hooks/useLoginRedirect';
 
 export default function Signup() {
-    const navigate = useNavigate();
-    const { signup, isLoading, error: contextError, loginStatus } = useContext(AuthContext);
+    const { signup, isLoading, error: contextError, loginStatus, isAuthenticated, user } = useContext(AuthContext);
+
+    // Use custom hook for login redirects (only redirect if approved, not pending)
+    useLoginRedirect(isAuthenticated && loginStatus === 'approved');
 
     // Form state
     const [fullName, setFullName] = useState('');
@@ -18,16 +20,13 @@ export default function Signup() {
     const [submitError, setSubmitError] = useState('');
     const [passwordStrength, setPasswordStrength] = useState(0);
 
-    // Redirect if signup successful with approval
+    // Show pending message after signup
     useEffect(() => {
         if (loginStatus === 'pending') {
-            // Show pending message but don't redirect
+            // Show pending message but don't redirect (hook handles redirect on approval)
             setSubmitError('✓ Registration submitted! Your account is pending admin approval.');
-        } else if (loginStatus === 'approved') {
-            // Auto-approved (regular users), redirect to dashboard
-            setTimeout(() => navigate('/dashboard'), 2000);
         }
-    }, [loginStatus, navigate]);
+    }, [loginStatus]);
 
     // Calculate password strength (0-4)
     const calculatePasswordStrength = (pwd) => {
@@ -439,39 +438,39 @@ export default function Signup() {
                                 )}
                             </div>
 
-                                    {/* Signup Button */}
-                                    <button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        style={{
-                                            width: '100%',
-                                            padding: '12px',
-                                            backgroundColor: isLoading ? '#ccc' : '#007bff',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            fontSize: '16px',
-                                            fontWeight: 'bold',
-                                            cursor: isLoading ? 'not-allowed' : 'pointer',
-                                            transition: 'background-color 0.3s'
-                                        }}
-                                    >
-                                        {isLoading ? 'Creating Account...' : 'Sign Up'}
-                                    </button>
+                            {/* Signup Button */}
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    backgroundColor: isLoading ? '#ccc' : '#007bff',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                                    transition: 'background-color 0.3s'
+                                }}
+                            >
+                                {isLoading ? 'Creating Account...' : 'Sign Up'}
+                            </button>
 
-                                    {/* Link to Login */}
-                                    <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
-                                        <p>
-                                            Already have an account?{' '}
-                                            <a href="/login" style={{ color: '#007bff', textDecoration: 'none', fontWeight: 'bold' }}>
-                                                Sign in here
-                                            </a>
-                                        </p>
-                                    </div>
-                                </form>
+                            {/* Link to Login */}
+                            <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
+                                <p>
+                                    Already have an account?{' '}
+                                    <a href="/login" style={{ color: '#007bff', textDecoration: 'none', fontWeight: 'bold' }}>
+                                        Sign in here
+                                    </a>
+                                </p>
                             </div>
+                        </form>
                     </div>
                 </div>
+            </div>
         </main>
     );
 }

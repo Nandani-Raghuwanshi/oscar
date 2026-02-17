@@ -1,10 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useLoginRedirect } from '../hooks/useLoginRedirect';
 
 export default function Login() {
-    const navigate = useNavigate();
-    const { login, isLoading, error: contextError, isAuthenticated, loginStatus } = useContext(AuthContext);
+    const { login, isLoading, error: contextError, loginStatus } = useContext(AuthContext);
+
+    // Use custom hook for login redirects
+    useLoginRedirect(loginStatus !== 'pending' && loginStatus !== 'rejected');
 
     // Form state
     const [email, setEmail] = useState('');
@@ -12,13 +14,6 @@ export default function Login() {
     const [rememberMe, setRememberMe] = useState(false);
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState('');
-
-    // Redirect if already authenticated
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/dashboard');
-        }
-    }, [isAuthenticated, navigate]);
 
     // Show pending/rejected message
     useEffect(() => {

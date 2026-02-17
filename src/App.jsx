@@ -1,5 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Nav from './components/Nav';
+import { useContext } from 'react';
+import { AuthContext } from './context/AuthContext';
+import AdminNav from './components/AdminNav';
+import AdvocateNav from './components/AdvocateNav';
+import UserNav from './components/UserNav';
+import GuestNav from './components/GuestNav';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -22,9 +27,28 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import './App.css';
 
 function App() {
+    const { isAuthenticated, user } = useContext(AuthContext);
+
+    // Render navbar based on user role
+    const renderNavbar = () => {
+        if (!isAuthenticated) {
+            return <GuestNav />;
+        }
+
+        if (user?.role === 'admin') {
+            return <AdminNav />;
+        }
+
+        if (user?.role === 'advocate' || user?.role === 'brand_advocate') {
+            return <AdvocateNav />;
+        }
+
+        return <UserNav />;
+    };
+
     return (
         <Router>
-            <Nav />
+            {renderNavbar()}
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
@@ -44,61 +68,61 @@ function App() {
                     </ProtectedRoute>
                 } />
 
-                {/* Referral Engine Routes - Protected */}
+                {/* Referral Engine Routes - Protected (Advocates only) */}
                 <Route path="/referral/select-type" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <ReferralSelectType />
                     </ProtectedRoute>
                 } />
                 <Route path="/referral/select-project" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <ReferralSelectProject />
                     </ProtectedRoute>
                 } />
                 <Route path="/referral/lead-form" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <ReferralLeadForm />
                     </ProtectedRoute>
                 } />
                 <Route path="/referral/link-qr" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <ReferralLinkQR />
                     </ProtectedRoute>
                 } />
 
-                {/* Dashboard Routes - Protected */}
+                {/* Dashboard Routes - Protected (Advocates only) */}
                 <Route path="/dashboard" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <Dashboard />
                     </ProtectedRoute>
                 } />
                 <Route path="/dashboard/my-referrals" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <MyReferrals />
                     </ProtectedRoute>
                 } />
                 <Route path="/dashboard/projects" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <MyProjects />
                     </ProtectedRoute>
                 } />
                 <Route path="/dashboard/rewards" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <Rewards />
                     </ProtectedRoute>
                 } />
                 <Route path="/dashboard/documents" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <Documents />
                     </ProtectedRoute>
                 } />
                 <Route path="/dashboard/share" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="advocate">
                         <SharePromote />
                     </ProtectedRoute>
                 } />
 
-                {/* Admin Routes - Protected (Admin Only) */}
+                {/* Admin Routes - Protected (Admin only) */}
                 <Route path="/admin" element={
                     <ProtectedRoute requiredRole="admin">
                         <AdminDashboard />
