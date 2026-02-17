@@ -156,6 +156,34 @@ function Nav() {
                                     </span>
                                 </li>
                                 <li>
+                                    <Link
+                                        to="/profile"
+                                        style={{
+                                            display: 'block',
+                                            padding: '10px 15px',
+                                            color: '#333',
+                                            textDecoration: 'none'
+                                        }}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        👤 Edit Profile
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        to="/reset-password"
+                                        style={{
+                                            display: 'block',
+                                            padding: '10px 15px',
+                                            color: '#333',
+                                            textDecoration: 'none'
+                                        }}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        🔐 Reset Password
+                                    </Link>
+                                </li>
+                                <li>
                                     <button
                                         onClick={handleLogout}
                                         style={{

@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
+import ProfileUpdate from './pages/ProfileUpdate';
+import ResetPassword from './pages/ResetPassword';
 import ReferralSelectType from './pages/referral/ReferralSelectType';
 import ReferralSelectProject from './pages/referral/ReferralSelectProject';
 import ReferralLeadForm from './pages/referral/ReferralLeadForm';
@@ -16,7 +18,7 @@ import MyProjects from './pages/dashboard/MyProjects';
 import Rewards from './pages/dashboard/Rewards';
 import Documents from './pages/dashboard/Documents';
 import SharePromote from './pages/dashboard/SharePromote';
-import AdminPanel from './pages/admin/AdminPanel';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import './App.css';
 
 function App() {
@@ -29,6 +31,18 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/about" element={<About />} />
+
+                {/* Profile Management Routes - Protected */}
+                <Route path="/profile" element={
+                    <ProtectedRoute>
+                        <ProfileUpdate />
+                    </ProtectedRoute>
+                } />
+                <Route path="/reset-password" element={
+                    <ProtectedRoute>
+                        <ResetPassword />
+                    </ProtectedRoute>
+                } />
 
                 {/* Referral Engine Routes - Protected */}
                 <Route path="/referral/select-type" element={
@@ -87,7 +101,7 @@ function App() {
                 {/* Admin Routes - Protected (Admin Only) */}
                 <Route path="/admin" element={
                     <ProtectedRoute requiredRole="admin">
-                        <AdminPanel />
+                        <AdminDashboard />
                     </ProtectedRoute>
                 } />
 

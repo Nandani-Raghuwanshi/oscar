@@ -24,13 +24,15 @@ CORS(app)
 from routes.auth_routes import auth_bp
 from routes.health_routes import health_bp
 from routes.admin_routes import admin_bp
+from routes.project_routes import project_bp
+from routes.user_routes import user_bp
 
 # Routes needed:
 # - routes/auth_routes.py (signup, login, logout) ✓
 # - routes/advocate_routes.py (register, get, update)
 # - routes/referral_routes.py (create link, submit lead, get referrals)
 # - routes/reward_routes.py (get rewards, pending, paid)
-# - routes/project_routes.py (get projects)
+# - routes/project_routes.py (get projects) ✓
 # - routes/admin_routes.py (admin analytics, user validation) ✓
 # - routes/health_routes.py (health check) ✓
 
@@ -38,6 +40,8 @@ from routes.admin_routes import admin_bp
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(health_bp, url_prefix='/api')
 app.register_blueprint(admin_bp, url_prefix='/api/admin')
+app.register_blueprint(project_bp, url_prefix='/api/projects')
+app.register_blueprint(user_bp, url_prefix='/api/users')
 
 @app.errorhandler(404)
 def not_found(error):

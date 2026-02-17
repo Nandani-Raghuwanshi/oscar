@@ -256,14 +256,99 @@ export const adminAPI = {
 
     /**
      * Task: GET /admin/advocates
-     * List all advocates
+     * List all advocates with detailed statistics
      */
-    listAdvocates: (skip = 0, limit = 20, advocateType = null, status = null) => {
+    listAdvocates: (skip = 0, limit = 20, advocateType = null, search = null) => {
         let url = `/admin/advocates?skip=${skip}&limit=${limit}`;
         if (advocateType) url += `&advocate_type=${advocateType}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        return api.get(url);
+    },
+
+    /**
+     * Task: GET /admin/referrals
+     * Get all referrals with filtering
+     */
+    getReferrals: (skip = 0, limit = 20, advocateType = null, status = null, projectId = null) => {
+        let url = `/admin/referrals?skip=${skip}&limit=${limit}`;
+        if (advocateType) url += `&advocate_type=${advocateType}`;
+        if (status) url += `&status=${status}`;
+        if (projectId) url += `&project_id=${projectId}`;
+        return api.get(url);
+    },
+
+    /**
+     * Task: GET /admin/advocates/:advocate_id/details
+     * Get detailed advocate information
+     */
+    getAdvocateDetails: (advocateId) =>
+        api.get(`/admin/advocates/${advocateId}/details`),
+
+    /**
+     * Task: GET /admin/rewards-analytics
+     * Get rewards analytics and distribution
+     */
+    getRewardsAnalytics: (skip = 0, limit = 20, status = null) => {
+        let url = `/admin/rewards-analytics?skip=${skip}&limit=${limit}`;
         if (status) url += `&status=${status}`;
         return api.get(url);
     },
+
+    /**
+     * Task: GET /admin/project-analytics
+     * Get project-wise analytics
+     */
+    getProjectAnalytics: () =>
+        api.get('/admin/project-analytics'),
+
+    /**
+     * Task: POST /admin/validation/override
+     * Override advocate type validation
+     */
+    overrideValidation: (advocateId, newType, reason) =>
+        api.post('/admin/validation/override', {
+            advocate_id: advocateId,
+            new_type: newType,
+            reason: reason
+        }),
+
+    /**
+     * Task: POST /admin/advocates/import
+     * Bulk import advocates
+     */
+    importAdvocates: (advocatesData) =>
+        api.post('/admin/advocates/import', {
+            advocates: advocatesData
+        }),
+};
+
+/**
+ * USER MANAGEMENT ENDPOINTS
+ */
+export const userAPI = {
+    /**
+     * Task: PUT /users/profile
+     * Update user profile information
+     */
+    updateProfile: (profileData) =>
+        api.put('/users/profile', profileData),
+
+    /**
+     * Task: POST /users/reset-password
+     * Reset/change user password
+     */
+    resetPassword: (currentPassword, newPassword) =>
+        api.post('/users/reset-password', {
+            current_password: currentPassword,
+            new_password: newPassword
+        }),
+
+    /**
+     * Task: GET /users/profile
+     * Get current user profile
+     */
+    getProfile: () =>
+        api.get('/users/profile'),
 };
 
 export default api;

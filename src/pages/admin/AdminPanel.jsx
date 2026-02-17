@@ -4,7 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 export default function AdminDashboard() {
     const { user } = useContext(AuthContext);
-    const [tab, setTab] = useState('pending'); // 'pending', 'all', 'analytics'
+    const [tab, setTab] = useState('pending'); // 'pending', 'all', 'analytics', 'import-advocates'
     const [users, setUsers] = useState([]);
     const [analytics, setAnalytics] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +16,7 @@ export default function AdminDashboard() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
     const [filters, setFilters] = useState({ role: '', status: '' });
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Load pending users on mount
     useEffect(() => {
@@ -26,7 +27,7 @@ export default function AdminDashboard() {
         } else if (tab === 'analytics') {
             loadAnalytics();
         }
-    }, [tab, skip, filters]);
+    }, [tab, skip, filters, searchQuery]);
 
     const loadPendingUsers = async () => {
         setIsLoading(true);
@@ -50,7 +51,8 @@ export default function AdminDashboard() {
                 skip,
                 limit,
                 filters.role || null,
-                filters.status || null
+                filters.status || null,
+                searchQuery || null
             );
             setUsers(response.data.users);
             setTotal(response.data.total);
@@ -188,7 +190,7 @@ export default function AdminDashboard() {
                 )}
 
                 {/* Tabs */}
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', borderBottom: '1px solid #ddd' }}>
+                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', borderBottom: '1px solid #ddd', flexWrap: 'wrap' }}>
                     {['pending', 'all', 'analytics'].map(t => (
                         <button
                             key={t}
@@ -320,6 +322,26 @@ export default function AdminDashboard() {
                     {tab === 'all' && (
                         <div>
                             <h2>All Users</h2>
+                            <div style={{ marginBottom: '20px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="🔍 Search by name, email, phone, project..."
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setSkip(0);
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        borderRadius: '4px',
+                                        border: '1px solid #ccc',
+                                        fontSize: '14px',
+                                        marginBottom: '15px',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
                             <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
                                 <select
                                     value={filters.role}
