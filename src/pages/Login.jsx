@@ -1,12 +1,10 @@
 import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { useLoginRedirect } from '../hooks/useLoginRedirect';
 
 export default function Login() {
-    const { login, isLoading, error: contextError, loginStatus } = useContext(AuthContext);
-
-    // Use custom hook for login redirects
-    useLoginRedirect(loginStatus !== 'pending' && loginStatus !== 'rejected');
+    const navigate = useNavigate();
+    const { login, isLoading, error: contextError, loginStatus, isAuthenticated, user } = useContext(AuthContext);
 
     // Form state
     const [email, setEmail] = useState('');
@@ -14,6 +12,27 @@ export default function Login() {
     const [rememberMe, setRememberMe] = useState(false);
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState('');
+
+    // Handle redirect after successful login
+    useEffect(() => {
+        if (isAuthenticated && loginStatus === 'approved') {
+            if (user?.role === 'admin') {
+                navigate('/admin', { replace: true });
+            } else if (['advocate', 'brand_advocate'].includes(user?.role)) {
+                // Store advocate ID from user data
+                if (user.advocate_id) {
+                    localStorage.setItem('advocateId', user.advocate_id);
+                    navigate('/dashboard', { replace: true });
+                } else {
+                    // Fallback: redirect to advocate setup if ID is missing
+                    console.warn('Advocate ID is missing, redirecting to setup');
+                    navigate('/referral/select-type', { replace: true });
+                }
+            } else {
+                navigate('/home', { replace: true });
+            }
+        }
+    }, [isAuthenticated, loginStatus, user, navigate]);
 
     // Show pending/rejected message
     useEffect(() => {
@@ -212,7 +231,7 @@ export default function Login() {
 
                             {/* Login Button */}
                             <button
-                                type="submit"
+                                type="button"
                                 disabled={isLoading || loginStatus === 'pending' || loginStatus === 'rejected'}
                                 style={{
                                     width: '100%',
@@ -225,6 +244,7 @@ export default function Login() {
                                     fontWeight: 'bold',
                                     cursor: isLoading || loginStatus === 'pending' || loginStatus === 'rejected' ? 'not-allowed' : 'pointer',
                                 }}
+                                onClick={handleSubmit}
                             >
                                 Login
                             </button>

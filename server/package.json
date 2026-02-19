@@ -1,0 +1,26 @@
+{
+    "name": "builtcred-backend",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js",
+        "seed:roles": "node seeds/seed_roles.js",
+        "seed:admin": "node seeds/seed_admin_data.js",
+        "seed:projects": "node seeds/seed_projects.js",
+        "seed:advocates": "node seeds/seed_advocates.js",
+        "seed:referrals": "node seeds/seed_referrals_rewards.js",
+        "seed:all": "node seeds/seed_all.js"
+    },
+    "dependencies": {
+        "bcrypt": "^5.1.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "jsonwebtoken": "^9.0.0",
+        "morgan": "^1.10.0",
+        "mongodb": "^5.7.0",
+        "qrcode": "^1.5.1"
+    }
+}

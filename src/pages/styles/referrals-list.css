@@ -1,0 +1,350 @@
+/* My Referrals Page Styles */
+
+.referrals-page {
+    padding: 40px 20px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.referrals-page .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.referrals-page .page-header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.referrals-page .page-header p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+}
+
+.referrals-page .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    color: #7f8c8d;
+    font-size: 1.2rem;
+}
+
+/* Stats Section */
+.referrals-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.stat-badge {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
+}
+
+.stat-badge:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #3498db;
+}
+
+.stat-badge .count {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3498db;
+    margin-bottom: 5px;
+}
+
+.stat-badge .label {
+    display: block;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+}
+
+.stat-badge.converted .count {
+    color: #27ae60;
+}
+
+.stat-badge.converted:hover {
+    border-color: #27ae60;
+}
+
+.stat-badge.rejected .count {
+    color: #e74c3c;
+}
+
+.stat-badge.rejected:hover {
+    border-color: #e74c3c;
+}
+
+/* Filters Section */
+.filters-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ecf0f1;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 16px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #d5dbdb;
+}
+
+.filter-btn.active {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+}
+
+/* Referrals List */
+.referrals-list {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.referrals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.referral-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.referral-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.referral-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.referral-card .card-header h3 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin: 0;
+    flex: 1;
+}
+
+.referral-card .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.referral-card .card-content {
+    margin-bottom: 15px;
+}
+
+.referral-card .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.referral-card .info-row:last-child {
+    border-bottom: none;
+}
+
+.referral-card .info-row .label {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.referral-card .info-row .value {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.referral-card .card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ecf0f1;
+}
+
+.referral-card .btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.referral-card .btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.referral-card .btn-primary:hover {
+    background: #2980b9;
+}
+
+.referral-card .btn-secondary {
+    background: #ecf0f1;
+    color: #2c3e50;
+}
+
+.referral-card .btn-secondary:hover {
+    background: #d5dbdb;
+}
+
+.referral-card .btn-sm {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+}
+
+.referral-card .success-badge {
+    background: #d5f4e6;
+    color: #27ae60;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.empty-state .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.empty-state .btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .referrals-page {
+        padding: 20px 15px;
+    }
+
+    .referrals-page .page-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .referrals-stats {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+
+    .stat-badge {
+        padding: 15px;
+    }
+
+    .stat-badge .count {
+        font-size: 1.5rem;
+    }
+
+    .stat-badge .label {
+        font-size: 0.85rem;
+    }
+
+    .filter-buttons {
+        flex-direction: column;
+    }
+
+    .filter-btn {
+        width: 100%;
+    }
+
+    .referrals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-box input {
+        font-size: 16px;
+    }
+}

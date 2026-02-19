@@ -4,15 +4,14 @@ import { AuthContext } from '../context/AuthContext';
 
 /**
  * Hook to handle login redirects based on user role and status
- * Usage: useLoginRedirect(shouldRedirect)
+ * Usage: useLoginRedirect()
+ * Note: Login component now handles redirect directly, this is kept for backward compatibility
  */
-export function useLoginRedirect(shouldRedirect = true) {
+export function useLoginRedirect() {
     const navigate = useNavigate();
     const { isAuthenticated, user, loginStatus } = useContext(AuthContext);
 
     useEffect(() => {
-        if (!shouldRedirect) return;
-
         if (isAuthenticated && loginStatus === 'approved') {
             // Redirect based on user role
             if (user?.role === 'admin') {
@@ -21,10 +20,10 @@ export function useLoginRedirect(shouldRedirect = true) {
                 navigate('/dashboard', { replace: true });
             } else {
                 // Regular user
-                navigate('/dashboard', { replace: true });
+                navigate('/home', { replace: true });
             }
         }
-    }, [isAuthenticated, loginStatus, user, navigate, shouldRedirect]);
+    }, [isAuthenticated, loginStatus, user, navigate]);
 }
 
 /**

@@ -13,6 +13,8 @@ import About from './pages/About';
 import NotFound from './pages/NotFound';
 import ProfileUpdate from './pages/ProfileUpdate';
 import ResetPassword from './pages/ResetPassword';
+import ReferralLanding from './pages/ReferralLanding';
+import ReferralAnalytics from './pages/ReferralAnalytics';
 import ReferralSelectType from './pages/referral/ReferralSelectType';
 import ReferralSelectProject from './pages/referral/ReferralSelectProject';
 import ReferralLeadForm from './pages/referral/ReferralLeadForm';
@@ -27,7 +29,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import './App.css';
 
 function App() {
-    const { isAuthenticated, user } = useContext(AuthContext);
+    const { isAuthenticated, user, isLoading } = useContext(AuthContext);
 
     // Render navbar based on user role
     const renderNavbar = () => {
@@ -48,13 +50,23 @@ function App() {
 
     return (
         <Router>
-            {renderNavbar()}
+            {!isLoading && renderNavbar()}
             <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/about" element={<About />} />
+
+                {/* Referral Landing Page - Public (anyone can access via link) */}
+                <Route path="/ref/:uuid" element={<ReferralLanding />} />
+
+                {/* Referral Analytics - Protected (Advocates only) */}
+                <Route path="/analytics/:uuid" element={
+                    <ProtectedRoute requiredRole="advocate">
+                        <ReferralAnalytics />
+                    </ProtectedRoute>
+                } />
 
                 {/* Profile Management Routes - Protected */}
                 <Route path="/profile" element={

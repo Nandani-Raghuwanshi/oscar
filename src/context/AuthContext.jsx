@@ -5,23 +5,49 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [loginStatus, setLoginStatus] = useState(null); // 'pending', 'rejected', 'approved'
 
-    // Initialize user from localStorage on mount
+    // Initialize user from localStorage on mount and verify token
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('authToken');
-        if (storedUser && token) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (err) {
-                console.error('Failed to parse stored user:', err);
-                localStorage.removeItem('user');
-                localStorage.removeItem('authToken');
+        const initializeAuth = async () => {
+            const storedUser = localStorage.getItem('user');
+            const token = localStorage.getItem('authToken');
+            
+            if (storedUser && token) {
+                try {
+                    const userData = JSON.parse(storedUser);
+                    
+                    // Verify token is still valid by making a test request
+                    try {
+                        // Use any protected endpoint to verify token validity
+                        // We'll use a simple health check or user verification
+                        const response = await authAPI.verifyToken();
+                        if (response.data?.success || response.status === 200) {
+                            // Token is valid, restore user
+                            setUser(userData);
+                            setLoginStatus(userData.status === 'pending' ? 'pending' : 'approved');
+                        }
+                    } catch (tokenErr) {
+                        // Token is invalid or expired, clear storage
+                        console.warn('Token verification failed:', tokenErr.message);
+                        localStorage.removeItem('user');
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('advocateId');
+                        setUser(null);
+                    }
+                } catch (err) {
+                    console.error('Failed to parse stored user:', err);
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('advocateId');
+                }
             }
-        }
+            setIsLoading(false);
+        };
+
+        initializeAuth();
     }, []);
 
     /**
@@ -81,6 +107,7 @@ export function AuthProvider({ children }) {
 
             if (status === 'approved' && token) {
                 // User is approved, store token and data
+                    
                 localStorage.setItem('authToken', token);
                 localStorage.setItem('user', JSON.stringify(userData));
                 setUser(userData);
