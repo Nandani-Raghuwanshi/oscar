@@ -16,8 +16,8 @@ const userSchema = new mongoose.Schema(
         },
         email: {
             type: String,
-            required: true,
             unique: true,
+            sparse: true,
             lowercase: true,
             trim: true
         },
@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema(
         isActive: {
             type: Boolean,
             default: true
+        },
+        userLoggedIn: {
+            type: Boolean,
+            default: false
         },
         projectId: {
             type: mongoose.Schema.Types.ObjectId,

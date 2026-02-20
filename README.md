@@ -6,11 +6,18 @@ A comprehensive referral management system for construction projects with multi-
 
 - [Phase 1 Summary](PHASE_1_COMPLETE.md) - Infrastructure & Authentication complete ✅
 - [Phase 2 Summary](PHASE_2_COMPLETE.md) - Admin & User Management complete ✅
-- [Phase 3 Setup](docs/PHASE_3_BUILDER_MODULE.md) - Builder module in progress 🚀
+- [Phase 3 Summary](PHASE_3_COMPLETE.md) - Builder/Developer module complete ✅
+- [Phase 4 Summary](PHASE_4_COMPLETE_STATUS.md) - Project Advocates implementation complete ✅
+- [Phase 4 Setup Guide](docs/PHASE_4_PROJECT_ADVOCATES.md) - Phase 4 technical guide
+- **[Phase 5 Progress](PHASE_5_STARTED.md)** - Brand Advocates started 🚀
+- **[Phase 5 Setup Guide](docs/PHASE_5_BRAND_ADVOCATES.md)** - Complete Phase 5 documentation
+- [Login Redirect Fix](LOGIN_REDIRECT_FIX.md) - Post-login navigation and API auth fixes
 - [Phase 1 Setup](PHASE_1_SETUP.md) - Detailed setup instructions
 - [Phase 2 Setup](PHASE_2_SETUP.md) - Overview of what's been implemented
 - [Phase 2: Role-Based Routing](docs/PHASE_2_ROUTING_SETUP.md) - Frontend routing & navigation setup
 - [Storage & State Management](docs/STORAGE_MANAGEMENT.md) - localStorage & Zustand stores guide
+- [Builder Customer Advocate Logins](docs/BUILDER_CUSTOMER_ADVOCATE_LOGINS.md) - Auto-created project advocate accounts
+- [Advocate First Login Password Hashing](docs/ADVOCATE_FIRST_LOGIN_PASSWORD_HASH.md) - Plain-to-hash password migration on first login
 - [Architecture](ARCHITECTURE.md) - System design and data flow
 - [Development Guide](DEVELOPMENT.md) - Code conventions & best practices
 - [Project Requirements](docs/basic.md) - Features by user role
@@ -35,9 +42,9 @@ BuiltCred is a referral program platform for construction projects that enables:
 - **Brand Advocates:** Cross-project referrals, reward tracking
 - **Admins:** Complete system control, user management, reporting
 
-## Current Status: Phase 3 - In Progress 🚀
+## Current Status: Phase 5 - Complete ✅
 
-Phase 1 (infrastructure & authentication) and Phase 2 (admin & user management) are complete. Phase 3 (Builder/Developer module) is now in development.
+Phase 1 (infrastructure & authentication), Phase 2 (admin & user management), Phase 3 (builder/developer module), Phase 4 (project advocates module), and Phase 5 (Brand Advocates module) are complete. Ready for Phase 6 planning.
 
 ### ✅ Phase 1 - Complete
 - Full authentication system (register, login, JWT)
@@ -77,11 +84,21 @@ Phase 1 (infrastructure & authentication) and Phase 2 (admin & user management) 
   - Escalations viewer
   - Ready for WhatsApp integration in Phase 8
 
-### What's Next: Phase 4 - Project Advocates Module
-- Advocate profile management
-- Referral submission interface
-- Conversion tracking
-- Reward management
+### Phase 5 Complete ✅ - Brand Advocates Module
+- ✅ Database models (BrandReferral, BrandReward)
+- ✅ 14 REST API endpoints with validation
+- ✅ verifyBrandAdvocate middleware
+- ✅ 5 Frontend pages (Dashboard, Referrals, Rewards, Project, Documentation)
+- ✅ BrandNavbar and BrandAdvocateOutlet
+- ✅ App.jsx routing configuration with role-based redirects
+- ✅ 2,200+ lines of production-ready code
+- ✅ Complete documentation and guides
+
+### What's Next: Phase 6 Planning
+- CRM/Sales Core Module implementation
+- Advanced reporting and analytics
+- Reward integration enhancements
+- Performance optimization
 
 ### File Structure
 ```

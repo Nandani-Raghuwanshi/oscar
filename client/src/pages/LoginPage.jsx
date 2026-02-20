@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore';
 
 export const LoginPage = () => {
     const [formData, setFormData] = useState({
-        email: '',
+        loginId: '',
         password: ''
     });
     const [error, setError] = useState('');
@@ -22,26 +22,35 @@ export const LoginPage = () => {
         e.preventDefault();
         setError('');
 
-        const success = await login(formData.email, formData.password);
+        const success = await login(formData.loginId, formData.password);
         if (success) {
-            // Get user from store to check role
-            const userState = useAuthStore.getState();
-            const userRole = userState.user?.role;
+            // Use a small delay to ensure state is properly synchronized
+            setTimeout(() => {
+                // Get user from store to check role
+                const userState = useAuthStore.getState();
+                const userRole = userState.user?.role;
 
-            // Navigate based on role
-            if (userRole === 'admin') {
-                navigate('/admin/dashboard');
-            } else if (userRole === 'builder') {
-                navigate('/builder/dashboard');
-            } else if (userRole === 'crm_manager' || userRole === 'sales_associate') {
-                navigate('/crm/dashboard');
-            } else if (userRole === 'project_advocate' || userRole === 'brand_advocate') {
-                navigate('/advocate/dashboard');
-            } else {
-                navigate('/dashboard');
-            }
+                // Verify the user is assigned to a project (for advocates)
+                if ((userRole === 'project_advocate' || userRole === 'brand_advocate') && !userState.user?.projectId) {
+                    setError('Your account is not assigned to a project. Please contact your administrator.');
+                    return;
+                }
+
+                // Navigate based on role
+                if (userRole === 'admin') {
+                    navigate('/admin/dashboard');
+                } else if (userRole === 'builder') {
+                    navigate('/builder/dashboard');
+                } else if (userRole === 'crm_manager' || userRole === 'sales_associate') {
+                    navigate('/crm/dashboard');
+                } else if (userRole === 'project_advocate' || userRole === 'brand_advocate') {
+                    navigate('/advocate/dashboard');
+                } else {
+                    navigate('/dashboard');
+                }
+            }, 100);
         } else {
-            setError('Invalid email or password');
+            setError('Invalid phone/email or password');
         }
     };
 
@@ -58,11 +67,11 @@ export const LoginPage = () => {
 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-gray-700 font-semibold mb-2">Email</label>
+                        <label className="block text-gray-700 font-semibold mb-2">Phone or Email</label>
                         <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
+                            type="text"
+                            name="loginId"
+                            value={formData.loginId}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
                             required

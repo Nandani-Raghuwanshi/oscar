@@ -19,7 +19,7 @@ import { AdminProjectsPage } from './pages/admin/AdminProjectsPage';
 import { AdminEscalationsPage } from './pages/admin/AdminEscalationsPage';
 
 // Builder pages
-import BuilderDashboard  from './pages/dashboards/BuilderDashboard';
+import BuilderDashboard from './pages/dashboards/BuilderDashboard';
 import BuilderCustomersPage from './pages/builder/BuilderCustomersPage';
 import BuilderReportsPage from './pages/builder/BuilderReportsPage';
 import BuilderEscalationsPage from './pages/builder/BuilderEscalationsPage';
@@ -28,14 +28,22 @@ import BuilderEscalationsPage from './pages/builder/BuilderEscalationsPage';
 import CRMDashboard from './pages/dashboards/CRMDashboard';
 import CRMAdvocatesPage from './pages/crm/CRMAdvocatesPage';
 import CRMReferralsPage from './pages/crm/CRMReferralsPage';
-import CRMPipelinePage  from './pages/crm/CRMPipelinePage';
-import CRMPaymentsPage  from './pages/crm/CRMPaymentsPage';
+import CRMPipelinePage from './pages/crm/CRMPipelinePage';
+import CRMPaymentsPage from './pages/crm/CRMPaymentsPage';
 
 // Advocate pages
 import { AdvocateDashboard } from './pages/dashboards/AdvocateDashboard';
 import { AdvocateReferralsPage } from './pages/advocate/AdvocateReferralsPage';
 import { AdvocateRewardsPage } from './pages/advocate/AdvocateRewardsPage';
 import { AdvocateDocumentationPage } from './pages/advocate/AdvocateDocumentationPage';
+
+// Brand Advocate pages
+import { BrandAdvocateDashboard } from './pages/dashboards/BrandAdvocateDashboard';
+import { BrandReferralsPage } from './pages/brand/BrandReferralsPage';
+import { BrandRewardsPage } from './pages/brand/BrandRewardsPage';
+import { BrandProjectPage } from './pages/brand/BrandProjectPage';
+import { BrandDocumentationPage } from './pages/brand/BrandDocumentationPage';
+import { BrandAdvocateOutlet } from './pages/outlets/BrandAdvocateOutlet';
 
 function App() {
     const { token } = useAuthStore();
@@ -122,6 +130,22 @@ function App() {
                     <Route path="referrals" element={<AdvocateReferralsPage />} />
                     <Route path="rewards" element={<AdvocateRewardsPage />} />
                     <Route path="documentation" element={<AdvocateDocumentationPage />} />
+                </Route>
+
+                {/* Brand Advocate Routes */}
+                <Route
+                    path="/brand/*"
+                    element={
+                        <ProtectedRoute requiredRoles={['brand_advocate']}>
+                            <BrandAdvocateOutlet />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route path="dashboard" element={<BrandAdvocateDashboard />} />
+                    <Route path="referrals" element={<BrandReferralsPage />} />
+                    <Route path="rewards" element={<BrandRewardsPage />} />
+                    <Route path="project" element={<BrandProjectPage />} />
+                    <Route path="documentation" element={<BrandDocumentationPage />} />
                 </Route>
 
                 {/* Root redirect */}

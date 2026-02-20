@@ -89,14 +89,13 @@ export const RegisterPage = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-gray-700 font-semibold mb-2">Email</label>
+                        <label className="block text-gray-700 font-semibold mb-2">Email (Optional)</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            required
                         />
                     </div>
 

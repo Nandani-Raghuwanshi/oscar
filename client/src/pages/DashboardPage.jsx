@@ -1,9 +1,26 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Layout } from '../components/Layout';
 
 export const DashboardPage = () => {
     const { user } = useAuthStore();
+    const navigate = useNavigate();
+
+    // Redirect to role-specific dashboards
+    useEffect(() => {
+        if (user?.role === 'brand_advocate') {
+            navigate('/brand/dashboard');
+        } else if (user?.role === 'project_advocate') {
+            navigate('/advocate/dashboard');
+        } else if (user?.role === 'admin') {
+            navigate('/admin/dashboard');
+        } else if (user?.role === 'builder') {
+            navigate('/builder/dashboard');
+        } else if (['crm_manager', 'sales_associate'].includes(user?.role)) {
+            navigate('/crm/dashboard');
+        }
+    }, [user?.role, navigate]);
 
     const getRoleDisplayName = (role) => {
         const roleMap = {

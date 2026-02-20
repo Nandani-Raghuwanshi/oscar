@@ -12,7 +12,7 @@ const router = express.Router();
 router.post('/register', [
     body('firstName').trim().notEmpty().withMessage('First name is required'),
     body('lastName').trim().notEmpty().withMessage('Last name is required'),
-    body('email').isEmail().withMessage('Valid email is required'),
+    body('email').optional({ checkFalsy: true }).isEmail().withMessage('Valid email is required'),
     body('phone').trim().notEmpty().withMessage('Phone is required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     body('role').isIn(Object.values(USER_ROLES)).withMessage('Invalid role')
@@ -24,9 +24,15 @@ router.post('/register', [
         }
 
         const { firstName, lastName, email, phone, password, role } = req.body;
+        const normalizedEmail = email?.trim().toLowerCase() || undefined;
+        const normalizedPhone = phone?.trim();
 
         // Check if user exists
-        const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+        const userQuery = [{ phone: normalizedPhone }];
+        if (normalizedEmail) {
+            userQuery.push({ email: normalizedEmail });
+        }
+        const existingUser = await User.findOne({ $or: userQuery });
         if (existingUser) {
             return errorResponse(res, HTTP_STATUS.BAD_REQUEST, 'User already exists');
         }
@@ -35,8 +41,8 @@ router.post('/register', [
         const user = new User({
             firstName,
             lastName,
-            email,
-            phone,
+            email: normalizedEmail,
+            phone: normalizedPhone,
             password,
             role
         });
@@ -60,7 +66,7 @@ router.post('/register', [
 
 // Login
 router.post('/login', [
-    body('email').isEmail().withMessage('Valid email is required'),
+    body('loginId').trim().notEmpty().withMessage('Email or phone is required'),
     body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
     try {
@@ -69,22 +75,39 @@ router.post('/login', [
             return errorResponse(res, HTTP_STATUS.BAD_REQUEST, 'Validation failed', errors.array());
         }
 
-        const { email, password } = req.body;
+        const { loginId, password } = req.body;
+        console.log('Login attempt with:', { loginId }); // Debug log
+        const normalizedLoginId = loginId?.trim();
+        const isEmail = normalizedLoginId?.includes('@');
+        const advocateRoles = new Set([USER_ROLES.PROJECT_ADVOCATE, USER_ROLES.BRAND_ADVOCATE]);
 
         // Find user
-        const user = await User.findOne({ email }).select('+password');
+        const user = await User.findOne(isEmail
+            ? { email: normalizedLoginId.toLowerCase() }
+            : { phone: normalizedLoginId }
+        ).select('+password');
+        console.log('User found:', user ? user.email || user.phone : 'No user'); // Debug log
         if (!user) {
-            return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Invalid email or password');
+            return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Invalid email/phone or password');
         }
 
         // Check password
         const isPasswordValid = await user.comparePassword(password);
-        if (!isPasswordValid) {
-            return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Invalid email or password');
+        console.log('Password valid:', isPasswordValid); // Debug log
+        const plainPasswordMatch = user.password === password;
+        console.log('Plain password match:', plainPasswordMatch, user.password + "/" + password); // Debug log
+        if (!isPasswordValid && !plainPasswordMatch) {
+            return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Invalid email/phone or password');
         }
 
         // Update last login
         user.lastLogin = new Date();
+        if (advocateRoles.has(user.role)) {
+            user.userLoggedIn = true;
+        }
+        if (plainPasswordMatch) {
+            user.password = password;
+        }
         await user.save();
 
         const token = jwt.sign(

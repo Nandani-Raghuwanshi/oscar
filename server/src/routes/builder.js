@@ -9,12 +9,71 @@ import Customer from '../models/Customer.js';
 import Escalation from '../models/Escalation.js';
 import Project from '../models/Project.js';
 import { successResponse, errorResponse } from '../utils/response.js';
+import { USER_ROLES } from '../config/constants.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+
+const normalizeEmail = (email) => {
+    const trimmed = email?.trim();
+    return trimmed ? trimmed.toLowerCase() : undefined;
+};
+
+const normalizePhone = (phone) => phone?.trim();
+
+const splitCustomerName = (name = '') => {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    const firstName = parts[0] || 'Customer';
+    const lastName = parts.slice(1).join(' ') || 'Customer';
+    return { firstName, lastName };
+};
+
+const buildAdvocatePassword = (name, phone) => {
+    const digits = (phone || '').replace(/\D/g, '');
+    const last4 = digits.slice(-4).padStart(4, '0');
+    const namePart = (name || '').trim().split(/\s+/)[0] || 'Customer';
+    const safeName = namePart.replace(/[^a-zA-Z0-9]/g, '') || 'Customer';
+    let password = `${safeName}${last4}`;
+    if (password.length < 6) {
+        password = `${password}Adv`;
+    }
+    return password;
+};
+
+const buildAdvocateUserPayload = (customer, projectId, builderId) => {
+    const normalizedEmail = normalizeEmail(customer.email);
+    const normalizedPhone = normalizePhone(customer.phone);
+    const { firstName, lastName } = splitCustomerName(customer.name);
+
+    return {
+        firstName,
+        lastName,
+        email: normalizedEmail,
+        phone: normalizedPhone,
+        password: buildAdvocatePassword(customer.name, normalizedPhone),
+        role: USER_ROLES.PROJECT_ADVOCATE,
+        projectId,
+        createdBy: builderId,
+    };
+};
+
+const findExistingUser = async (email, phone) => {
+    const query = [];
+    if (email) {
+        query.push({ email });
+    }
+    if (phone) {
+        query.push({ phone });
+    }
+    if (query.length === 0) {
+        return null;
+    }
+
+    return User.findOne({ $or: query });
+};
 
 // Middleware: Verify builder access
 const verifyBuilder = async (req, res, next) => {
@@ -80,6 +139,8 @@ router.get('/projects', authenticateToken, verifyBuilder, async (req, res) => {
 router.post('/customers', authenticateToken, verifyBuilder, async (req, res) => {
     try {
         const { projectId, name, email, phone, tags, notes } = req.body;
+        const normalizedEmail = normalizeEmail(email);
+        const normalizedPhone = normalizePhone(phone);
 
         // Verify project exists and builder has access
         const project = await Project.findById(projectId);
@@ -87,23 +148,53 @@ router.post('/customers', authenticateToken, verifyBuilder, async (req, res) => 
             return errorResponse(res, 404, 'Project not found or access denied');
         }
 
+        const existingUser = await findExistingUser(normalizedEmail, normalizedPhone);
+        if (existingUser) {
+            return errorResponse(res, 409, 'Customer login already exists for this phone or email', {
+                existingUser: {
+                    id: existingUser._id,
+                    email: existingUser.email,
+                    phone: existingUser.phone,
+                },
+            });
+        }
+
         // Generate unique referral code
         const referralCode = `${projectId.slice(-8)}_${Date.now()}`.toUpperCase();
+
+        const advocateUser = new User(
+            buildAdvocateUserPayload(
+                { name, email: normalizedEmail, phone: normalizedPhone },
+                projectId,
+                req.user.id
+            )
+        );
+
+        await advocateUser.save();
 
         const customer = new Customer({
             projectId,
             builderId: req.user.id,
             name,
-            email,
-            phone,
+            email: normalizedEmail,
+            phone: normalizedPhone,
             referralCode,
             tags: tags || [],
             notes,
             source: 'manual',
         });
 
-        await customer.save();
-        successResponse(res, 201, 'Customer created successfully', customer);
+        try {
+            await customer.save();
+        } catch (error) {
+            await User.deleteOne({ _id: advocateUser._id });
+            throw error;
+        }
+
+        successResponse(res, 201, 'Customer created successfully', {
+            customer,
+            loginCreated: true,
+        });
     } catch (error) {
         console.error('Create customer error:', error);
         errorResponse(res, 500, 'Failed to create customer');
@@ -316,13 +407,77 @@ router.post('/customers-import', authenticateToken, verifyBuilder, async (req, r
         if (!project || project.builder.toString() !== req.user.id) {
             return errorResponse(res, 404, 'Project not found or access denied');
         }
+        const normalizedCustomers = customers.map((customer, index) => ({
+            ...customer,
+            name: customer.name?.trim() || 'Unnamed',
+            email: normalizeEmail(customer.email),
+            phone: normalizePhone(customer.phone),
+            projectId,
+            builderId: req.user.id,
+            referralCode: customer.referralCode || `${projectId.slice(-8)}_${Date.now()}_${index}`.toUpperCase(),
+            source: customer.source || 'bulk_import',
+        }));
 
-        // Insert customers
-        const inserted = await Customer.insertMany(customers);
+        const missingPhones = normalizedCustomers
+            .filter((customer) => !customer.phone)
+            .map((customer, index) => ({ index, name: customer.name }));
 
-        successResponse(res, 201, `${inserted.length} customers imported successfully`, {
-            count: inserted.length,
-        });
+        if (missingPhones.length > 0) {
+            return errorResponse(res, 400, 'Some customers are missing phone numbers', {
+                missingPhones,
+            });
+        }
+
+        const phones = normalizedCustomers.map((customer) => customer.phone);
+        const emails = normalizedCustomers
+            .map((customer) => customer.email)
+            .filter(Boolean);
+
+        const duplicatePhones = phones.filter((phone, index) => phones.indexOf(phone) !== index);
+        const duplicateEmails = emails.filter((email, index) => emails.indexOf(email) !== index);
+
+        if (duplicatePhones.length > 0 || duplicateEmails.length > 0) {
+            return errorResponse(res, 409, 'Duplicate phone or email found in import', {
+                duplicatePhones: [...new Set(duplicatePhones)],
+                duplicateEmails: [...new Set(duplicateEmails)],
+            });
+        }
+
+        const existingUsers = await User.find({
+            $or: [
+                { phone: { $in: phones } },
+                ...(emails.length > 0 ? [{ email: { $in: emails } }] : []),
+            ],
+        }, 'email phone');
+
+        if (existingUsers.length > 0) {
+            return errorResponse(res, 409, 'Customer logins already exist for some entries', {
+                existingUsers: existingUsers.map((user) => ({
+                    email: user.email,
+                    phone: user.phone,
+                })),
+            });
+        }
+
+        let createdUsers = [];
+        try {
+            const usersToCreate = normalizedCustomers.map((customer) =>
+                buildAdvocateUserPayload(customer, projectId, req.user.id)
+            );
+            createdUsers = await User.insertMany(usersToCreate);
+
+            const inserted = await Customer.insertMany(normalizedCustomers);
+
+            successResponse(res, 201, `${inserted.length} customers imported successfully`, {
+                count: inserted.length,
+                loginsCreated: createdUsers.length,
+            });
+        } catch (error) {
+            if (createdUsers.length > 0) {
+                await User.deleteMany({ _id: { $in: createdUsers.map((user) => user._id) } });
+            }
+            throw error;
+        }
     } catch (error) {
         console.error('Import customers error:', error);
         errorResponse(res, 500, 'Failed to import customers');
