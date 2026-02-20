@@ -9,6 +9,8 @@ import projectRoutes from './routes/projects.js';
 import builderRoutes from './routes/builder.js';
 import advocateRoutes from './routes/advocate.js';
 import brandRoutes from './routes/brand.js';
+import crmRoutes from './routes/crm.js';
+import { checkAndEscalateReferrals } from './utils/autoEscalation.js';
 import morgan from 'morgan';
 dotenv.config();
 
@@ -35,6 +37,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/builder', builderRoutes);
 app.use('/api/advocate', advocateRoutes);
 app.use('/api/brand', brandRoutes);
+app.use('/api/crm', crmRoutes);
 
 // 404 handler
 app.use(notFoundHandler);
@@ -45,4 +48,27 @@ app.use(errorHandler);
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    
+    // Start auto-escalation cron job (runs every hour)
+    console.log('Starting auto-escalation cron job...');
+    setInterval(async () => {
+        try {
+            console.log('Running auto-escalation check...');
+            await checkAndEscalateReferrals();
+            console.log('Auto-escalation check completed');
+        } catch (error) {
+            console.error('Auto-escalation error:', error);
+        }
+    }, 60 * 60 * 1000); // Run every hour
+    
+    // Run immediately on startup
+    setTimeout(async () => {
+        try {
+            console.log('Running initial auto-escalation check...');
+            await checkAndEscalateReferrals();
+            console.log('Initial auto-escalation check completed');
+        } catch (error) {
+            console.error('Initial auto-escalation error:', error);
+        }
+    }, 5000); // Run 5 seconds after startup
 });

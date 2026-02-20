@@ -31,6 +31,11 @@ import CRMReferralsPage from './pages/crm/CRMReferralsPage';
 import CRMPipelinePage from './pages/crm/CRMPipelinePage';
 import CRMPaymentsPage from './pages/crm/CRMPaymentsPage';
 
+// Sales Associate pages
+import SalesAssociateDashboard from './pages/dashboards/SalesAssociateDashboard';
+import SalesAssociateReferralsPage from './pages/crm/SalesAssociateReferralsPage';
+import SalesAssociatePerformancePage from './pages/crm/SalesAssociatePerformancePage';
+
 // Advocate pages
 import { AdvocateDashboard } from './pages/dashboards/AdvocateDashboard';
 import { AdvocateReferralsPage } from './pages/advocate/AdvocateReferralsPage';
@@ -44,6 +49,17 @@ import { BrandRewardsPage } from './pages/brand/BrandRewardsPage';
 import { BrandProjectPage } from './pages/brand/BrandProjectPage';
 import { BrandDocumentationPage } from './pages/brand/BrandDocumentationPage';
 import { BrandAdvocateOutlet } from './pages/outlets/BrandAdvocateOutlet';
+
+// Role-based dashboard component
+const RoleDashboard = () => {
+    const { user } = useAuthStore();
+    if (user?.role === 'crm_manager') {
+        return <CRMDashboard />;
+    } else if (user?.role === 'sales_associate') {
+        return <SalesAssociateDashboard />;
+    }
+    return <Navigate to="/login" />;
+};
 
 function App() {
     const { token } = useAuthStore();
@@ -110,11 +126,67 @@ function App() {
                         </ProtectedRoute>
                     }
                 >
-                    <Route path="dashboard" element={<CRMDashboard />} />
-                    <Route path="advocates" element={<CRMAdvocatesPage />} />
-                    <Route path="referrals" element={<CRMReferralsPage />} />
-                    <Route path="pipeline" element={<CRMPipelinePage />} />
-                    <Route path="payments" element={<CRMPaymentsPage />} />
+                    {/* Dynamic dashboard based on role */}
+                    <Route 
+                        path="dashboard" 
+                        element={
+                            <ProtectedRoute requiredRoles={['crm_manager', 'sales_associate']}>
+                                <RoleDashboard />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    
+                    {/* CRM Manager Only Routes */}
+                    <Route 
+                        path="advocates" 
+                        element={
+                            <ProtectedRoute requiredRole="crm_manager">
+                                <CRMAdvocatesPage />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="referrals" 
+                        element={
+                            <ProtectedRoute requiredRole="crm_manager">
+                                <CRMReferralsPage />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="pipeline" 
+                        element={
+                            <ProtectedRoute requiredRole="crm_manager">
+                                <CRMPipelinePage />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="payments" 
+                        element={
+                            <ProtectedRoute requiredRole="crm_manager">
+                                <CRMPaymentsPage />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    
+                    {/* Sales Associate Only Routes */}
+                    <Route 
+                        path="my-referrals" 
+                        element={
+                            <ProtectedRoute requiredRole="sales_associate">
+                                <SalesAssociateReferralsPage />
+                            </ProtectedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="my-performance" 
+                        element={
+                            <ProtectedRoute requiredRole="sales_associate">
+                                <SalesAssociatePerformancePage />
+                            </ProtectedRoute>
+                        } 
+                    />
                 </Route>
 
                 {/* Advocate Routes */}

@@ -107,4 +107,57 @@ export const brandAPI = {
     getProjectDocuments: () => apiClient.get('/brand/project/documents')
 };
 
+export const crmAPI = {
+    // ===== CRM MANAGER ENDPOINTS =====
+    
+    // Dashboard
+    getDashboardStats: () => apiClient.get('/crm/dashboard/stats'),
+    
+    // Advocates Management
+    getAdvocates: (params) => apiClient.get('/crm/advocates', { params }),
+    getAdvocateById: (id) => apiClient.get(`/crm/advocates/${id}`),
+    
+    // Referrals Management (Master List)
+    getReferrals: (params) => apiClient.get('/crm/referrals', { params }),
+    getReferralById: (id) => apiClient.get(`/crm/referrals/${id}`),
+    assignReferral: (id, data) => apiClient.post(`/crm/referrals/${id}/assign`, data),
+    reassignReferral: (id, data) => apiClient.put(`/crm/referrals/${id}/reassign`, data),
+    
+    // Pipeline View
+    getPipelineData: (params) => apiClient.get('/crm/pipeline', { params }),
+    
+    // Payments Management
+    getPayments: (params) => apiClient.get('/crm/payments', { params }),
+    
+    // Sales Associates Management
+    getSalesAssociates: (params) => apiClient.get('/crm/sales-associates', { params }),
+    
+    // Escalations
+    getEscalations: (params) => apiClient.get('/crm/escalations', { params }),
+    createManualEscalation: (id, data) => apiClient.post(`/crm/referrals/${id}/escalate`, data),
+    resolveEscalation: (id, data) => apiClient.patch(`/crm/escalations/${id}/resolve`, data),
+    
+    // ===== SALES ASSOCIATE ENDPOINTS =====
+    
+    // Sales Associate Dashboard
+    getAssociateDashboard: () => apiClient.get('/crm/associate/dashboard'),
+    
+    // My Assigned Referrals
+    getMyReferrals: (params) => apiClient.get('/crm/associate/referrals', { params }),
+    
+    // Interactions (Call Logs)
+    logInteraction: (data) => apiClient.post('/crm/associate/interactions', data),
+    getInteractions: (referralId) => apiClient.get(`/crm/associate/interactions/${referralId}`),
+    
+    // Status Updates
+    updateReferralStatus: (id, data) => apiClient.patch(`/crm/associate/referrals/${id}/status`, data),
+    
+    // Payments
+    markPayment: (data) => apiClient.post('/crm/associate/payments', data),
+    getMyPayments: (params) => apiClient.get('/crm/associate/payments', { params }),
+    
+    // Performance
+    getPerformance: (params) => apiClient.get('/crm/associate/performance', { params })
+};
+
 export default apiClient;

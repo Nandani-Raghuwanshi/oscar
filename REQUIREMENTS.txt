@@ -1,0 +1,492 @@
+# BuiltCred - Complete Dependencies & Requirements
+
+## System Requirements
+
+### Operating System:
+- Windows 10/11 (64-bit)
+- macOS 10.15 or higher
+- Linux (Ubuntu 20.04 LTS or higher)
+
+### Hardware Requirements:
+- **Processor:** Intel Core i3 or equivalent (minimum), i5+ recommended
+- **RAM:** 4GB (minimum), 8GB+ recommended
+- **Storage:** 500MB free space for application + 2GB for MongoDB
+- **Network:** Stable internet connection for cloud deployments
+
+---
+
+## Software Prerequisites
+
+### Required Software & Versions:
+
+1. **Node.js**
+   - Version: 18.0.0 or higher (LTS recommended)
+   - Download: https://nodejs.org/
+   - Verify: `node --version`
+
+2. **npm (Node Package Manager)**
+   - Version: 9.0.0 or higher (comes with Node.js)
+   - Verify: `npm --version`
+
+3. **MongoDB**
+   - Version: 6.0.0 or higher
+   - Download: https://www.mongodb.com/try/download/community
+   - Alternative: MongoDB Atlas (cloud) - https://www.mongodb.com/cloud/atlas
+   - Verify: `mongod --version`
+
+4. **Git**
+   - Version: 2.x or higher
+   - Download: https://git-scm.com/downloads
+   - Verify: `git --version`
+
+### Optional Software:
+
+1. **pnpm** (Alternative package manager - faster than npm)
+   - Install: `npm install -g pnpm`
+   - Verify: `pnpm --version`
+
+2. **MongoDB Compass** (GUI for MongoDB)
+   - Download: https://www.mongodb.com/try/download/compass
+
+3. **Postman** or **Thunder Client** (API testing)
+   - Postman: https://www.postman.com/downloads/
+   - Thunder Client: VS Code extension
+
+4. **VS Code** (Recommended code editor)
+   - Download: https://code.visualstudio.com/
+
+---
+
+## Backend Dependencies (server/)
+
+### Production Dependencies:
+
+```json
+{
+  "axios": "^1.6.0",              // HTTP client for external API calls
+  "bcryptjs": "^2.4.3",           // Password hashing
+  "cors": "^2.8.5",               // Cross-Origin Resource Sharing
+  "csv-parser": "^3.2.0",         // CSV file parsing
+  "dotenv": "^16.3.1",            // Environment variable management
+  "express": "^4.18.2",           // Web framework
+  "express-validator": "^7.0.0",  // Request validation
+  "jsonwebtoken": "^9.0.3",       // JWT authentication
+  "mongoose": "^8.0.0",           // MongoDB ODM
+  "morgan": "^1.10.1",            // HTTP request logger
+  "multer": "^2.0.2"              // File upload handling
+}
+```
+
+### Development Dependencies:
+
+```json
+{
+  "jest": "^29.7.0",              // Testing framework
+  "nodemon": "^3.0.1",            // Auto-restart on file changes
+  "supertest": "^7.1.3"           // HTTP assertions for testing
+}
+```
+
+### Installation Command:
+```bash
+cd server
+npm install
+```
+
+---
+
+## Frontend Dependencies (client/)
+
+### Production Dependencies:
+
+```json
+{
+  "react": "^18.2.0",             // UI library
+  "react-dom": "^18.2.0",         // React DOM renderer
+  "react-router-dom": "^6.20.0",  // Routing library
+  "axios": "^1.6.0",              // HTTP client
+  "zustand": "^4.4.0",            // State management
+  "tailwindcss": "^3.3.0"         // Utility-first CSS framework
+}
+```
+
+### Development Dependencies:
+
+```json
+{
+  "@vitejs/plugin-react": "^4.2.1",  // Vite React plugin
+  "vite": "^5.0.0",                   // Build tool & dev server
+  "eslint": "^8.55.0",                // Code linting
+  "eslint-plugin-react": "^7.33.0",  // React ESLint rules
+  "autoprefixer": "^10.4.16",        // CSS autoprefixer
+  "postcss": "^8.4.31"               // CSS transformations
+}
+```
+
+### Installation Command:
+```bash
+cd client
+npm install
+```
+
+---
+
+## Database Requirements
+
+### MongoDB Configuration:
+
+**Minimum Requirements:**
+- MongoDB 6.0+
+- WiredTiger storage engine
+- At least 2GB free disk space
+- Port 27017 available (default)
+
+**Collections Created:**
+1. users
+2. projects
+3. customers
+4. referrals
+5. rewards
+6. auditlogs
+7. interactions (Phase 6)
+8. paymentrecords (Phase 6)
+9. escalations
+10. brandreferrals
+11. brandrewards
+
+**Indexes Required:**
+- users: email (unique), role
+- referrals: status, assignedTo, escalationLevel
+- interactions: referralId, salesAssociateId
+- paymentrecords: referralId, status
+
+---
+
+## Environment Variables
+
+### Server Environment Variables (.env):
+
+```bash
+# Required Variables:
+MONGODB_URI=mongodb://localhost:27017/builtcred
+JWT_SECRET=your_super_secret_jwt_key_minimum_32_characters_long
+JWT_EXPIRE=7d
+PORT=5000
+NODE_ENV=development
+
+# Optional Variables (Phase 8):
+GUPSHUP_API_KEY=your_gupshup_api_key
+GUPSHUP_APP_NAME=your_app_name
+```
+
+### Client Environment Variables (.env) - Optional:
+
+```bash
+VITE_API_URL=http://localhost:5000
+```
+
+---
+
+## Port Requirements
+
+### Default Ports:
+- **Backend API:** 5000
+- **Frontend Dev Server:** 5173 (Vite default)
+- **MongoDB:** 27017
+
+### Ensure Ports Are Available:
+```powershell
+# Check if port is in use (Windows)
+netstat -ano | findstr :5000
+netstat -ano | findstr :5173
+netstat -ano | findstr :27017
+```
+
+---
+
+## NPM Scripts
+
+### Backend Scripts (server/package.json):
+
+```json
+{
+  "start": "node src/index.js",          // Production start
+  "dev": "nodemon src/index.js",         // Development with auto-reload
+  "test": "jest --detectOpenHandles"     // Run tests
+}
+```
+
+### Frontend Scripts (client/package.json):
+
+```json
+{
+  "dev": "vite",                         // Start dev server
+  "build": "vite build",                 // Build for production
+  "preview": "vite preview",             // Preview production build
+  "lint": "eslint src"                   // Run linter
+}
+```
+
+---
+
+## Installation Steps Summary
+
+### 1. Install System Prerequisites:
+```powershell
+# Install Node.js (includes npm)
+# Download from: https://nodejs.org/
+
+# Install MongoDB
+# Download from: https://www.mongodb.com/try/download/community
+
+# Install Git
+# Download from: https://git-scm.com/downloads
+```
+
+### 2. Clone Repository:
+```powershell
+git clone https://github.com/Nandani-Raghuwanshi/oscar.git
+cd oscar
+```
+
+### 3. Install Backend Dependencies:
+```powershell
+cd server
+npm install
+```
+
+### 4. Install Frontend Dependencies:
+```powershell
+cd ..\client
+npm install
+```
+
+### 5. Configure Environment:
+```powershell
+# Copy .env.example to .env
+cd ..\server
+copy .env.example .env
+
+# Edit .env file with your configuration
+notepad .env
+```
+
+### 6. Start MongoDB:
+```powershell
+# Start MongoDB service
+net start MongoDB
+```
+
+### 7. Run Application:
+```powershell
+# Terminal 1 - Backend
+cd server
+npm run dev
+
+# Terminal 2 - Frontend
+cd client
+npm run dev
+```
+
+---
+
+## Dependency Security
+
+### Security Best Practices:
+
+1. **Keep Dependencies Updated:**
+   ```bash
+   npm outdated
+   npm update
+   ```
+
+2. **Check for Vulnerabilities:**
+   ```bash
+   npm audit
+   npm audit fix
+   ```
+
+3. **Use Package Lock:**
+   - Always commit `package-lock.json` or `pnpm-lock.yaml`
+   - Ensures consistent installations
+
+4. **Environment Security:**
+   - Never commit `.env` files
+   - Use strong JWT secrets (64+ characters)
+   - Rotate secrets regularly in production
+
+---
+
+## Browser Requirements
+
+### Supported Browsers:
+- Chrome 90+ (recommended)
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+### Required Browser Features:
+- JavaScript ES6+ support
+- LocalStorage API
+- Fetch API
+- CSS Grid & Flexbox
+
+---
+
+## Production Deployment Requirements
+
+### Additional Requirements for Production:
+
+1. **Process Manager:**
+   - PM2: `npm install -g pm2`
+   - Usage: `pm2 start server/src/index.js --name builtcred-api`
+
+2. **Reverse Proxy:**
+   - Nginx (recommended) or Apache
+   - For serving frontend and proxying API requests
+
+3. **SSL Certificate:**
+   - Let's Encrypt (free) or commercial SSL
+   - Required for HTTPS
+
+4. **Cloud Hosting Options:**
+   - **Backend:** Heroku, AWS EC2, DigitalOcean, Render
+   - **Frontend:** Netlify, Vercel, AWS S3 + CloudFront
+   - **Database:** MongoDB Atlas, AWS DocumentDB
+
+5. **Monitoring (Optional):**
+   - Logging: Winston, Morgan
+   - Monitoring: New Relic, DataDog
+   - Error Tracking: Sentry
+
+---
+
+## Minimum vs Recommended Specifications
+
+### Minimum (Development):
+- Node.js 18.0+
+- npm 9.0+
+- MongoDB 6.0+ (local)
+- 4GB RAM
+- Windows 10 / macOS 10.15 / Ubuntu 20.04
+
+### Recommended (Production):
+- Node.js 18.x LTS
+- npm 9.x or pnpm 8.x
+- MongoDB 6.0+ (Atlas cluster)
+- 8GB+ RAM
+- Ubuntu 22.04 LTS or similar
+- PM2 process manager
+- Nginx reverse proxy
+- SSL certificate
+- Automated backups
+- Monitoring tools
+
+---
+
+## Total Package Count
+
+### Backend:
+- Production Dependencies: 10 packages
+- Development Dependencies: 3 packages
+- **Total:** 13 packages
+
+### Frontend:
+- Production Dependencies: 6 packages
+- Development Dependencies: 6 packages
+- **Total:** 12 packages
+
+### Combined:
+- **Total Packages:** 25 packages
+- **Estimated Install Size:** ~500MB (including dependencies)
+- **Estimated Install Time:** 2-5 minutes (varies by internet speed)
+
+---
+
+## Troubleshooting Common Dependency Issues
+
+### Issue 1: npm install fails
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Delete node_modules and lock file
+Remove-Item -Recurse -Force node_modules
+Remove-Item package-lock.json
+
+# Reinstall
+npm install
+```
+
+### Issue 2: Version conflicts
+```bash
+# Check for outdated packages
+npm outdated
+
+# Update to latest compatible versions
+npm update
+```
+
+### Issue 3: peer dependency warnings
+```bash
+# Install with legacy peer deps flag
+npm install --legacy-peer-deps
+```
+
+---
+
+## Verification Checklist
+
+After installation, verify:
+
+- [ ] Node.js version: `node --version` (18.x+)
+- [ ] npm version: `npm --version` (9.x+)
+- [ ] MongoDB running: `mongosh` (connects successfully)
+- [ ] Backend dependencies: `cd server && npm list --depth=0`
+- [ ] Frontend dependencies: `cd client && npm list --depth=0`
+- [ ] Environment variables: `server/.env` exists and configured
+- [ ] Ports available: 5000, 5173, 27017
+- [ ] Backend starts: `cd server && npm run dev`
+- [ ] Frontend starts: `cd client && npm run dev`
+- [ ] Health check: `curl http://localhost:5000/health`
+
+---
+
+## Quick Install Commands (Copy-Paste Ready)
+
+```powershell
+# 1. Clone repository
+git clone https://github.com/Nandani-Raghuwanshi/oscar.git
+cd oscar
+
+# 2. Install backend dependencies
+cd server
+npm install
+copy .env.example .env
+cd ..
+
+# 3. Install frontend dependencies
+cd client
+npm install
+cd ..
+
+# 4. Start MongoDB
+net start MongoDB
+
+# 5. Run backend (Terminal 1)
+cd server
+npm run dev
+
+# 6. Run frontend (Terminal 2 - in new window)
+cd client
+npm run dev
+
+# 7. Access application
+# Open browser: http://localhost:5173
+```
+
+---
+
+**Status:** ✅ All Requirements Documented  
+**Last Updated:** February 21, 2026  
+**Version:** 1.0.0
