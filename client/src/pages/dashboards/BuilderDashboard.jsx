@@ -10,6 +10,7 @@ const BuilderDashboard = () => {
         statusBreakdown: [],
         inviteStats: {},
         activeEscalations: 0,
+        convertedLeads: 0,
     });
     const [loading, setLoading] = useState(true);
 
@@ -95,8 +96,8 @@ const BuilderDashboard = () => {
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-sm font-semibold text-gray-600">Converted</h3>
-                    <p className="text-3xl font-bold text-purple-600 mt-2">{getStatusCount('converted')}</p>
+                    <h3 className="text-sm font-semibold text-gray-600">Converted Leads</h3>
+                    <p className="text-3xl font-bold text-purple-600 mt-2">{stats.convertedLeads || 0}</p>
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-6">

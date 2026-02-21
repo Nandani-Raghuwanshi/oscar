@@ -445,4 +445,106 @@ router.get('/audit-logs', [
     }
 });
 
+// ============ ADMIN ESCALATION ENDPOINTS ============
+
+// GET /admin/escalations - List all escalated leads across all projects
+router.get('/escalations', async (req, res) => {
+    try {
+        const Lead = require('../models/Lead.js').default;
+        const { projectId, status, priority, page = 1, limit = 20 } = req.query;
+
+        // Filter for escalated leads (any stage >= 1)
+        const filter = { 
+            isEscalated: true,
+            escalationStage: { $gte: 1 },
+            deletedAt: null
+        };
+
+        if (projectId) filter.projectId = projectId;
+        if (status) filter.status = status;
+        if (priority) filter.priority = priority;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const escalations = await Lead.find(filter)
+            .populate('referralId')
+            .populate('assignedToId', 'firstName lastName email')
+            .populate('sourceAdvocateId', 'firstName lastName')
+            .populate('projectId', 'name')
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ priority: -1, escalatedDate: -1, createdAt: -1 });
+
+        const total = await Lead.countDocuments(filter);
+
+        // Get projects for filter dropdown
+        const Project = require('../models/Project.js').default;
+        const projects = await Project.find({}).select('_id name');
+
+        successResponse(res, 200, 'Escalations retrieved', {
+            escalations,
+            projects,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / parseInt(limit)),
+            },
+        });
+    } catch (error) {
+        console.error('List escalations error:', error);
+        errorResponse(res, 500, 'Failed to retrieve escalations');
+    }
+});
+
+// GET /admin/escalations/stats - Get escalation statistics
+router.get('/escalations/stats', async (req, res) => {
+    try {
+        const Lead = require('../models/Lead.js').default;
+        
+        const totalEscalations = await Lead.countDocuments({
+            isEscalated: true,
+            deletedAt: null
+        });
+
+        const criticalEscalations = await Lead.countDocuments({
+            isEscalated: true,
+            priority: 'critical',
+            deletedAt: null
+        });
+
+        const highEscalations = await Lead.countDocuments({
+            isEscalated: true,
+            priority: 'high',
+            deletedAt: null
+        });
+
+        const byStage = await Lead.aggregate([
+            { 
+                $match: { 
+                    isEscalated: true, 
+                    deletedAt: null 
+                } 
+            },
+            {
+                $group: {
+                    _id: '$escalationStage',
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        successResponse(res, 200, 'Escalation stats retrieved', {
+            totalEscalations,
+            criticalEscalations,
+            highEscalations,
+            byStage
+        });
+    } catch (error) {
+        console.error('Escalation stats error:', error);
+        errorResponse(res, 500, 'Failed to retrieve escalation stats');
+    }
+});
+
 export default router;

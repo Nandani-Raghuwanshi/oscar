@@ -78,10 +78,14 @@ const BuilderEscalationsPage = () => {
 
     const getStatusColor = (status) => {
         const colors = {
-            open: 'bg-red-100 text-red-700',
-            in_progress: 'bg-yellow-100 text-yellow-700',
-            resolved: 'bg-green-100 text-green-700',
-            closed: 'bg-gray-100 text-gray-700',
+            new: 'bg-blue-100 text-blue-700',
+            contacted: 'bg-yellow-100 text-yellow-700',
+            site_visit: 'bg-teal-100 text-teal-700',
+            qualified: 'bg-green-100 text-green-700',
+            negotiating: 'bg-purple-100 text-purple-700',
+            proposal_sent: 'bg-indigo-100 text-indigo-700',
+            converted: 'bg-green-100 text-green-700',
+            lost: 'bg-red-100 text-red-700',
         };
         return colors[status] || 'bg-gray-100 text-gray-700';
     };
@@ -125,10 +129,12 @@ const BuilderEscalationsPage = () => {
                             className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         >
                             <option value="">All Statuses</option>
-                            <option value="open">Open</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="closed">Closed</option>
+                            <option value="new">New</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="site_visit">Site Visit</option>
+                            <option value="qualified">Qualified</option>
+                            <option value="negotiating">Negotiating</option>
+                            <option value="proposal_sent">Proposal Sent</option>
                         </select>
                         <select
                             value={priorityFilter}
@@ -164,19 +170,22 @@ const BuilderEscalationsPage = () => {
                                     <thead className="bg-gray-50 border-b border-gray-200">
                                         <tr>
                                             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                                                Title
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                                                 Customer
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                                                Priority
                                             </th>
                                             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                                                 Status
                                             </th>
                                             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                                                Created
+                                                Priority
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                                                Stage
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                                                Assigned To
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                                                Escalated
                                             </th>
                                         </tr>
                                     </thead>
@@ -189,28 +198,12 @@ const BuilderEscalationsPage = () => {
                                                 <td className="px-6 py-4 text-sm">
                                                     <div>
                                                         <p className="font-medium text-gray-900">
-                                                            {escalation.title}
+                                                            {escalation.referralId?.referrerName || 'Unknown'}
                                                         </p>
                                                         <p className="text-xs text-gray-500 mt-1">
-                                                            {escalation.description?.substring(
-                                                                0,
-                                                                50
-                                                            )}
-                                                            ...
+                                                            {escalation.referralId?.phoneNumber || '—'}
                                                         </p>
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-900">
-                                                    {escalation.customerId?.name || '—'}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm">
-                                                    <span
-                                                        className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                                                            escalation.priority
-                                                        )}`}
-                                                    >
-                                                        {escalation.priority}
-                                                    </span>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm">
                                                     <span
@@ -221,8 +214,27 @@ const BuilderEscalationsPage = () => {
                                                         {escalation.status}
                                                     </span>
                                                 </td>
+                                                <td className="px-6 py-4 text-sm">
+                                                    <span
+                                                        className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                                                            escalation.priority
+                                                        )}`}
+                                                    >
+                                                        {escalation.priority}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-900">
+                                                    Stage {escalation.escalationStage || 0}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-900">
+                                                    {escalation.assignedToId
+                                                        ? `${escalation.assignedToId.firstName} ${escalation.assignedToId.lastName}`
+                                                        : '—'}
+                                                </td>
                                                 <td className="px-6 py-4 text-sm text-gray-600">
-                                                    {new Date(escalation.createdAt).toLocaleDateString()}
+                                                    {escalation.escalatedDate
+                                                        ? new Date(escalation.escalatedDate).toLocaleDateString()
+                                                        : '—'}
                                                 </td>
                                             </tr>
                                         ))}

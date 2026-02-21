@@ -539,10 +539,20 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
             },
         ]);
 
-        const escalations = await Escalation.countDocuments({
+        // Get escalated leads count (stage 2 or higher = escalated to builder)
+        const Lead = mongoose.model('Lead');
+        const escalations = await Lead.countDocuments({
             projectId,
-            builderId: req.user.id,
-            status: { $ne: 'closed' },
+            isEscalated: true,
+            escalationStage: { $gte: 2 },
+            deletedAt: null,
+        });
+
+        // Get converted leads count
+        const convertedLeads = await Lead.countDocuments({
+            projectId,
+            status: 'converted',
+            deletedAt: null,
         });
 
         successResponse(res, 200, 'Dashboard stats retrieved', {
@@ -554,6 +564,7 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
                 readCount: 0,
             },
             activeEscalations: escalations,
+            convertedLeads,
         });
     } catch (error) {
         console.error('Dashboard stats error:', error);
@@ -563,9 +574,10 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
 
 // ============ ESCALATION ENDPOINTS ============
 
-// GET /builder/escalations - List escalations
+// GET /builder/escalations - List escalated leads from CRM
 router.get('/escalations', authenticateToken, verifyBuilder, async (req, res) => {
     try {
+        const Lead = mongoose.model('Lead');
         const { projectId, status, priority, page = 1, limit = 20 } = req.query;
 
         if (!projectId) {
@@ -578,20 +590,28 @@ router.get('/escalations', authenticateToken, verifyBuilder, async (req, res) =>
             return errorResponse(res, 404, 'Project not found or access denied');
         }
 
-        const filter = { projectId, builderId: req.user.id };
+        // Filter for escalated leads (stage 2 = escalated to builder)
+        const filter = { 
+            projectId,
+            isEscalated: true,
+            escalationStage: { $gte: 2 }, // Stage 2 or higher (builder escalation)
+            deletedAt: null
+        };
 
         if (status) filter.status = status;
         if (priority) filter.priority = priority;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
-        const escalations = await Escalation.find(filter)
-            .populate('customerId', 'name phone')
+        const escalations = await Lead.find(filter)
+            .populate('referralId')
+            .populate('assignedToId', 'firstName lastName email')
+            .populate('sourceAdvocateId', 'firstName lastName')
             .skip(skip)
             .limit(parseInt(limit))
-            .sort({ priority: -1, createdAt: -1 });
+            .sort({ priority: -1, escalatedDate: -1, createdAt: -1 });
 
-        const total = await Escalation.countDocuments(filter);
+        const total = await Lead.countDocuments(filter);
 
         successResponse(res, 200, 'Escalations retrieved', {
             escalations,
