@@ -80,9 +80,19 @@ class EscalationProcessor {
         // Check each stage
         for (const stage of rule.stages) {
             if (hoursInStatus >= stage.waitHours) {
-                // Check if this stage already executed
+                // Check if this stage already executed for THIS RULE
+                // If rule changed, reset escalationStage to allow new rule to escalate
+                const ruleChanged = lead.escalationRuleId && lead.escalationRuleId.toString() !== rule._id.toString();
+                
+                if (ruleChanged) {
+                    // New rule, reset escalation stage for this rule
+                    lead.escalationStage = 0;
+                    lead.isEscalated = false;
+                    lead.escalationRuleId = null;
+                }
+                
                 if (lead.escalationStage < stage.stageNumber) {
-                    console.log(`[EscalationProcessor] Executing stage ${stage.stageNumber} for lead ${lead._id}`);
+                    console.log(`[EscalationProcessor] Executing stage ${stage.stageNumber} for lead ${lead._id} (rule: ${rule.ruleName})`);
                     await this.executeStage(lead, stage, rule);
                 }
             }

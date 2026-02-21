@@ -260,6 +260,18 @@ router.patch(
                 return errorResponse(res, 404, 'Lead not found');
             }
 
+            // Check if status is changing (moving to next bucket)
+            const statusChanging = lead.status !== status;
+
+            // Reset priority to 'medium' when lead moves to next bucket/status
+            if (statusChanging) {
+                lead.priority = 'medium';
+                // Also reset escalation state on status change
+                lead.escalationStage = 0;
+                lead.isEscalated = false;
+                lead.escalationReason = null;
+            }
+
             // Auto-escalation detection: If lead has been in status for > 7 days without update
             const daysSinceLastUpdate = (new Date() - lead.updatedAt) / (1000 * 60 * 60 * 24);
             if (daysSinceLastUpdate > 7 && !lead.isEscalated && status !== 'converted' && status !== 'lost') {
