@@ -3,17 +3,12 @@ import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 
 const BuilderEscalationsPage = () => {
-    const [escalations, setEscalations] = useState([]);
     const [crmEscalations, setCrmEscalations] = useState([]);
     const [selectedProject, setSelectedProject] = useState('');
     const [projects, setProjects] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [crmLoading, setCrmLoading] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
-    const [priorityFilter, setPriorityFilter] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
     const [crmPage, setCrmPage] = useState(1);
-    const [activeTab, setActiveTab] = useState('customer');
     const { user } = useAuthStore();
 
     const ITEMS_PER_PAGE = 20;
@@ -27,12 +22,8 @@ const BuilderEscalationsPage = () => {
 
     useEffect(() => {
         if (!selectedProject) return;
-        if (activeTab === 'customer') {
-            fetchEscalations();
-        } else {
-            fetchCrmEscalations();
-        }
-    }, [selectedProject, statusFilter, priorityFilter, currentPage, crmPage, activeTab]);
+        fetchCrmEscalations();
+    }, [selectedProject, statusFilter, crmPage]);
 
     const fetchProjects = async () => {
         try {
@@ -57,27 +48,6 @@ const BuilderEscalationsPage = () => {
         }
     };
 
-    const fetchEscalations = async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams({
-                projectId: selectedProject,
-                page: currentPage,
-                limit: ITEMS_PER_PAGE,
-            });
-            if (statusFilter) params.append('status', statusFilter);
-            if (priorityFilter) params.append('priority', priorityFilter);
-
-            // apiClient interceptor returns response.data already
-            const res = await apiClient.get(`/builder/escalations?${params}`);
-            setEscalations(res?.data?.escalations || []);
-        } catch (error) {
-            console.error('Failed to fetch escalations:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const fetchCrmEscalations = async () => {
         setCrmLoading(true);
         try {
@@ -86,7 +56,8 @@ const BuilderEscalationsPage = () => {
                 page: crmPage,
                 limit: ITEMS_PER_PAGE,
             });
-            if (priorityFilter) params.append('priority', priorityFilter);
+            if (statusFilter) params.append('status', statusFilter);
+            // Note: priority filter removed - backend only returns critical priority
 
             const res = await apiClient.get(`/builder/crm-escalations?${params}`);
             setCrmEscalations(res?.data?.escalations || []);
@@ -129,7 +100,7 @@ const BuilderEscalationsPage = () => {
 
     return (
         <div className="py-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Escalations</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Critical CRM / Sales Escalations</h2>
 
             {/* Project Selection */}
             <div className="mb-6 bg-white rounded-lg shadow p-4">
@@ -141,7 +112,6 @@ const BuilderEscalationsPage = () => {
                         value={selectedProject}
                         onChange={(e) => {
                             setSelectedProject(e.target.value);
-                            setCurrentPage(1);
                             setCrmPage(1);
                         }}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2"
@@ -158,231 +128,116 @@ const BuilderEscalationsPage = () => {
 
             {selectedProject && (
                 <>
-                    {/* Tabs */}
-                    <div className="mb-4 border-b border-gray-200">
-                        <nav className="flex space-x-8">
-                            <button
-                                onClick={() => { setActiveTab('customer'); setCurrentPage(1); }}
-                                className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-                                    activeTab === 'customer'
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                                }`}
-                            >
-                                Customer Escalations
-                            </button>
-                            <button
-                                onClick={() => { setActiveTab('crm'); setCrmPage(1); }}
-                                className={`py-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-                                    activeTab === 'crm'
-                                        ? 'border-orange-500 text-orange-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                                }`}
-                            >
-                                CRM / Sales Escalations
-                            </button>
-                        </nav>
-                    </div>
-
                     {/* Filters */}
                     <div className="mb-6 bg-white rounded-lg shadow p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            {activeTab === 'customer' && (
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                                >
-                                    <option value="">All Statuses</option>
-                                    <option value="open">Open</option>
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="resolved">Resolved</option>
-                                    <option value="closed">Closed</option>
-                                </select>
-                            )}
+                        <div className="grid grid-cols-1 gap-4">
                             <select
-                                value={priorityFilter}
-                                onChange={(e) => {
-                                    setPriorityFilter(e.target.value);
-                                    setCurrentPage(1);
-                                    setCrmPage(1);
-                                }}
+                                value={statusFilter}
+                                onChange={(e) => { setStatusFilter(e.target.value); setCrmPage(1); }}
                                 className="w-full border border-gray-300 rounded-lg px-4 py-2"
                             >
-                                <option value="">All Priorities</option>
-                                <option value="critical">Critical</option>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
+                                <option value="">All Statuses</option>
+                                <option value="new">New</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="site_visit">Site Visit</option>
+                                <option value="qualified">Qualified</option>
+                                <option value="negotiating">Negotiating</option>
+                                <option value="proposal_sent">Proposal Sent</option>
+                                <option value="converted">Converted</option>
+                                <option value="lost">Lost</option>
                             </select>
                         </div>
                     </div>
 
-                    {/* CUSTOMER ESCALATIONS */}
-                    {activeTab === 'customer' && (
-                        <div className="bg-white rounded-lg shadow overflow-hidden">
-                            {loading ? (
-                                <div className="p-8 text-center text-gray-500">Loading...</div>
-                            ) : escalations.length === 0 ? (
-                                <div className="p-8 text-center text-gray-500">
-                                    No customer escalations found for <strong>{selectedProjectName}</strong>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead className="bg-gray-50 border-b border-gray-200">
-                                                <tr>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Title</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Customer</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Priority</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Created</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {escalations.map((esc) => (
-                                                    <tr key={esc._id} className="border-b border-gray-200 hover:bg-gray-50">
-                                                        <td className="px-6 py-4 text-sm">
-                                                            <p className="font-medium text-gray-900">{esc.title}</p>
-                                                            <p className="text-xs text-gray-500 mt-1">
-                                                                {esc.description?.substring(0, 60)}...
-                                                            </p>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                                            {esc.customerId?.name || '—'}
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm">
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(esc.priority)}`}>
-                                                                {esc.priority}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm">
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(esc.status)}`}>
-                                                                {esc.status}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-600">
-                                                            {new Date(esc.createdAt).toLocaleDateString()}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
-                                        <button
-                                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                            disabled={currentPage === 1}
-                                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                        >
-                                            Previous
-                                        </button>
-                                        <span className="text-sm text-gray-600">Page {currentPage}</span>
-                                        <button
-                                            onClick={() => setCurrentPage(currentPage + 1)}
-                                            disabled={escalations.length < ITEMS_PER_PAGE}
-                                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                        >
-                                            Next
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    )}
-
                     {/* CRM / SALES ESCALATIONS */}
-                    {activeTab === 'crm' && (
-                        <div className="bg-white rounded-lg shadow overflow-hidden">
-                            <div className="px-6 py-3 bg-orange-50 border-b border-orange-200">
-                                <p className="text-sm text-orange-700 font-medium">
-                                    Leads escalated by CRM / Sales team for <strong>{selectedProjectName}</strong>
-                                </p>
-                            </div>
-                            {crmLoading ? (
-                                <div className="p-8 text-center text-gray-500">Loading...</div>
-                            ) : crmEscalations.length === 0 ? (
-                                <div className="p-8 text-center text-gray-500">
-                                    No CRM escalations found for <strong>{selectedProjectName}</strong>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead className="bg-gray-50 border-b border-gray-200">
-                                                <tr>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Lead / Referrer</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Assigned To (CRM)</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Pipeline Status</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Priority</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Escalation Reason</th>
-                                                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Escalated On</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {crmEscalations.map((lead) => (
-                                                    <tr key={lead._id} className="border-b border-gray-200 hover:bg-orange-50">
-                                                        <td className="px-6 py-4 text-sm">
-                                                            <p className="font-medium text-gray-900">
-                                                                {lead.referralId?.referrerName || '—'}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500 mt-0.5">
-                                                                {lead.referralId?.referrerPhone || lead.referralId?.referrerEmail || ''}
-                                                            </p>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-900">
-                                                            {lead.assignedToId
-                                                                ? `${lead.assignedToId.firstName} ${lead.assignedToId.lastName}`
-                                                                : <span className="text-gray-400 italic">Unassigned</span>
-                                                            }
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm">
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}>
-                                                                {lead.status?.replace(/_/g, ' ')}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm">
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(lead.priority)}`}>
-                                                                {lead.priority}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
-                                                            <p className="truncate" title={lead.escalationReason}>
-                                                                {lead.escalationReason || '—'}
-                                                            </p>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-sm text-gray-600">
-                                                            {lead.escalatedDate
-                                                                ? new Date(lead.escalatedDate).toLocaleDateString()
-                                                                : '—'}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
-                                        <button
-                                            onClick={() => setCrmPage(Math.max(1, crmPage - 1))}
-                                            disabled={crmPage === 1}
-                                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                        >
-                                            Previous
-                                        </button>
-                                        <span className="text-sm text-gray-600">Page {crmPage}</span>
-                                        <button
-                                            onClick={() => setCrmPage(crmPage + 1)}
-                                            disabled={crmEscalations.length < ITEMS_PER_PAGE}
-                                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                                        >
-                                            Next
-                                        </button>
-                                    </div>
-                                </>
-                            )}
+                    <div className="bg-white rounded-lg shadow overflow-hidden">
+                        <div className="px-6 py-3 bg-red-50 border-b border-red-200">
+                            <p className="text-sm text-red-700 font-medium">
+                                🔴 Critical priority leads escalated by CRM / Sales team for <strong>{selectedProjectName}</strong>
+                            </p>
                         </div>
-                    )}
+                        {crmLoading ? (
+                            <div className="p-8 text-center text-gray-500">Loading...</div>
+                        ) : crmEscalations.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">
+                                No critical CRM escalations found for <strong>{selectedProjectName}</strong>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 border-b border-gray-200">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Lead / Referrer</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Assigned To (CRM)</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Pipeline Status</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Priority</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Escalation Reason</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Escalated On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {crmEscalations.map((lead) => (
+                                                <tr key={lead._id} className="border-b border-gray-200 hover:bg-red-50">
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <p className="font-medium text-gray-900">
+                                                            {lead.referralId?.referrerName || '—'}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                            {lead.referralId?.referrerPhone || lead.referralId?.referrerEmail || ''}
+                                                        </p>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                                        {lead.assignedToId
+                                                            ? `${lead.assignedToId.firstName} ${lead.assignedToId.lastName}`
+                                                            : <span className="text-gray-400 italic">Unassigned</span>
+                                                        }
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}>
+                                                            {lead.status?.replace(/_/g, ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(lead.priority)}`}>
+                                                            {lead.priority}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                                                        <p className="truncate" title={lead.escalationReason}>
+                                                            {lead.escalationReason || '—'}
+                                                        </p>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                                        {lead.escalatedDate
+                                                            ? new Date(lead.escalatedDate).toLocaleDateString()
+                                                            : '—'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+                                    <button
+                                        onClick={() => setCrmPage(Math.max(1, crmPage - 1))}
+                                        disabled={crmPage === 1}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+                                    <span className="text-sm text-gray-600">Page {crmPage}</span>
+                                    <button
+                                        onClick={() => setCrmPage(crmPage + 1)}
+                                        disabled={crmEscalations.length < ITEMS_PER_PAGE}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </>
             )}
         </div>

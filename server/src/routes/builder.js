@@ -647,7 +647,7 @@ router.get('/escalations/:id', authenticateToken, verifyBuilder, async (req, res
 // GET /builder/crm-escalations - Get CRM/sales escalated leads for builder's project
 router.get('/crm-escalations', authenticateToken, verifyBuilder, async (req, res) => {
     try {
-        const { projectId, page = 1, limit = 20, status, priority } = req.query;
+        const { projectId, page = 1, limit = 20, status } = req.query;
 
         if (!projectId) {
             return errorResponse(res, 400, 'projectId is required');
@@ -667,11 +667,11 @@ router.get('/crm-escalations', authenticateToken, verifyBuilder, async (req, res
         const filter = {
             projectId: crmProjId,
             isEscalated: true,
+            priority: 'critical', // Only show critical priority escalations to builder
             deletedAt: null,
         };
 
         if (status) filter.status = status;
-        if (priority) filter.priority = priority;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
