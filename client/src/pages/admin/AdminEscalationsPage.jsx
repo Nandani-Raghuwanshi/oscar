@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import apiClient from '../../api/client';
+import { adminAPI } from '../../api/client';
 
 export const AdminEscalationsPage = () => {
-    const [escalations, setEscalations] = useState([]);
-    const [projects, setProjects] = useState([]);
+    const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 });
-    const [filters, setFilters] = useState({ projectId: '', status: '', priority: '' });
+    const [filters, setFilters] = useState({ action: '', userId: '' });
 
     useEffect(() => {
-        loadEscalations();
+        loadAuditLogs();
     }, [pagination.page, filters]);
 
-    const loadEscalations = async () => {
+    const loadAuditLogs = async () => {
         try {
             setLoading(true);
             const params = {
@@ -27,18 +26,13 @@ export const AdminEscalationsPage = () => {
                 if (params[key] === '') delete params[key];
             });
 
-            const response = await apiClient.get('/admin/escalations', {
-                params,
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            
-            setEscalations(response.data.data.escalations || []);
-            setProjects(response.data.data.projects || []);
-            setPagination(prev => ({ ...prev, ...response.data.data.pagination }));
+            const response = await adminAPI.getAuditLogs(params);
+            setLogs(response.data.logs);
+            setPagination(prev => ({ ...prev, ...response.data.pagination }));
             setError(null);
         } catch (err) {
-            setError(err.message || 'Failed to load escalations');
-            console.error('Error loading escalations:', err);
+            setError(err.message || 'Failed to load audit logs');
+            console.error('Error loading logs:', err);
         } finally {
             setLoading(false);
         }
@@ -48,81 +42,53 @@ export const AdminEscalationsPage = () => {
         return new Date(date).toLocaleString();
     };
 
-    const getPriorityColor = (priority) => {
-        const colors = {
-            critical: 'bg-red-100 text-red-700',
-            high: 'bg-orange-100 text-orange-700',
-            medium: 'bg-yellow-100 text-yellow-700',
-            low: 'bg-blue-100 text-blue-700',
-        };
-        return colors[priority] || 'bg-gray-100 text-gray-700';
+    const getActionColor = (action) => {
+        if (action.includes('CREATE')) return 'bg-green-100 text-green-800';
+        if (action.includes('UPDATE') || action.includes('CHANGE')) return 'bg-blue-100 text-blue-800';
+        if (action.includes('DELETE')) return 'bg-red-100 text-red-800';
+        return 'bg-gray-100 text-gray-800';
     };
 
-    const getStatusColor = (status) => {
-        const colors = {
-            new: 'bg-blue-100 text-blue-700',
-            contacted: 'bg-yellow-100 text-yellow-700',
-            site_visit: 'bg-teal-100 text-teal-700',
-            qualified: 'bg-green-100 text-green-700',
-            negotiating: 'bg-purple-100 text-purple-700',
-            proposal_sent: 'bg-indigo-100 text-indigo-700',
-            converted: 'bg-green-100 text-green-700',
-            lost: 'bg-red-100 text-red-700',
-        };
-        return colors[status] || 'bg-gray-100 text-gray-700';
-    };
+    const ACTIONS = [
+        'USER_CREATE',
+        'USER_UPDATE',
+        'USER_DELETE',
+        'USER_ROLE_CHANGE',
+        'PROJECT_CREATE',
+        'PROJECT_UPDATE',
+        'PROJECT_DELETE',
+        'BULK_USER_IMPORT',
+        'LOGIN',
+        'LOGOUT'
+    ];
 
     return (
         <div className="py-6">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Escalations - All Projects</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Audit Trail</h2>
             </div>
 
             {/* Filters */}
             <div className="bg-white rounded-lg shadow p-4 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <select
-                        value={filters.projectId}
-                        onChange={(e) => setFilters({ ...filters, projectId: e.target.value })}
-                        className="border border-gray-300 rounded-lg px-3 py-2"
+                        value={filters.action}
+                        onChange={(e) => setFilters({ ...filters, action: e.target.value })}
+                        className="border rounded px-3 py-2"
                     >
-                        <option value="">All Projects</option>
-                        {projects.map(project => (
-                            <option key={project._id} value={project._id}>{project.name}</option>
+                        <option value="">All Actions</option>
+                        {ACTIONS.map(action => (
+                            <option key={action} value={action}>{action}</option>
                         ))}
                     </select>
-                    <select
-                        value={filters.status}
-                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                        className="border border-gray-300 rounded-lg px-3 py-2"
-                    >
-                        <option value="">All Statuses</option>
-                        <option value="new">New</option>
-                        <option value="contacted">Contacted</option>
-                        <option value="site_visit">Site Visit</option>
-                        <option value="qualified">Qualified</option>
-                        <option value="negotiating">Negotiating</option>
-                        <option value="proposal_sent">Proposal Sent</option>
-                        <option value="converted">Converted</option>
-                        <option value="lost">Lost</option>
-                    </select>
-                    <select
-                        value={filters.priority}
-                        onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                        className="border border-gray-300 rounded-lg px-3 py-2"
-                    >
-                        <option value="">All Priorities</option>
-                        <option value="critical">Critical</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                    <button
-                        onClick={() => setFilters({ projectId: '', status: '', priority: '' })}
-                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
-                    >
-                        Clear Filters
-                    </button>
+                    <div className="md:col-span-2">
+                        <button
+                            onClick={() => setFilters({ action: '', userId: '' })}
+                            className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
+                        >
+                            Clear Filters
+                        </button>
+                    </div>
                 </div>
             </div>
 

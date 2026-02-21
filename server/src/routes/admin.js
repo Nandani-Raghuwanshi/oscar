@@ -1,8 +1,6 @@
 import express from 'express';
 import { body, query, validationResult } from 'express-validator';
 import User from '../models/User.js';
-import Lead from '../models/Lead.js';
-import Project from '../models/Project.js';
 import AuditLog from '../models/AuditLog.js';
 import { HTTP_STATUS, USER_ROLES } from '../config/constants.js';
 import { successResponse, errorResponse } from '../utils/response.js';
@@ -443,84 +441,6 @@ router.get('/audit-logs', [
             }
         });
     } catch (error) {
-        errorResponse(res, HTTP_STATUS.INTERNAL_ERROR, error.message);
-    }
-});
-
-// GET /admin/escalations - Get all escalated leads across all projects
-router.get('/escalations', [
-    query('page').optional().isInt({ min: 1 }).withMessage('Page must be positive integer'),
-    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
-    query('projectId').optional().isMongoId().withMessage('Invalid project ID'),
-    query('status').optional().trim(),
-    query('priority').optional().isIn(['low', 'medium', 'high', 'critical']).withMessage('Invalid priority')
-], async (req, res) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return errorResponse(res, HTTP_STATUS.BAD_REQUEST, 'Validation failed', errors.array());
-        }
-
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
-        const skip = (page - 1) * limit;
-
-        // Build filter for escalated leads
-        const filter = { 
-            deletedAt: null,
-            $or: [
-                { isEscalated: true },
-                { escalationStage: { $gt: 0 } }
-            ]
-        };
-
-        if (req.query.projectId) filter.projectId = req.query.projectId;
-        if (req.query.status) filter.status = req.query.status;
-        if (req.query.priority) filter.priority = req.query.priority;
-
-        const [escalations, total, projects] = await Promise.all([
-            Lead.find(filter)
-                .populate('referralId', 'referrerName referrerPhone')
-                .populate('assignedToId', 'firstName lastName email')
-                .populate('sourceAdvocateId', 'firstName lastName')
-                .populate('projectId', 'name')
-                .skip(skip)
-                .limit(limit)
-                .sort({ priority: -1, escalationStage: -1, escalatedDate: -1 }),
-            Lead.countDocuments(filter),
-            Project.find({}).select('name')
-        ]);
-
-        // Format escalations for frontend
-        const formattedEscalations = escalations.map(lead => ({
-            _id: lead._id,
-            customerName: lead.referralId?.referrerName || 'Unknown',
-            phone: lead.referralId?.referrerPhone || lead.phoneNumber || 'N/A',
-            status: lead.status,
-            priority: lead.priority,
-            escalationStage: lead.escalationStage,
-            escalatedDate: lead.escalatedDate,
-            escalationReason: lead.escalationReason,
-            assignedTo: lead.assignedToId ? `${lead.assignedToId.firstName} ${lead.assignedToId.lastName}` : 'Unassigned',
-            sourceAdvocate: lead.sourceAdvocateId ? `${lead.sourceAdvocateId.firstName} ${lead.sourceAdvocateId.lastName}` : 'N/A',
-            projectName: lead.projectId?.name || 'Unknown Project',
-            projectId: lead.projectId?._id,
-            createdAt: lead.createdAt,
-            escalationHistory: lead.escalationHistory || []
-        }));
-
-        successResponse(res, HTTP_STATUS.OK, 'Escalations retrieved successfully', {
-            escalations: formattedEscalations,
-            projects,
-            pagination: {
-                page,
-                limit,
-                total,
-                pages: Math.ceil(total / limit)
-            }
-        });
-    } catch (error) {
-        console.error('Admin escalations error:', error);
         errorResponse(res, HTTP_STATUS.INTERNAL_ERROR, error.message);
     }
 });
