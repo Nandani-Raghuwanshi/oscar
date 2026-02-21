@@ -10,6 +10,7 @@ const CRMEscalationsPage = () => {
     const [filterStatus, setFilterStatus] = useState(null);
     const [selectedEscalation, setSelectedEscalation] = useState(null);
     const [resolution, setResolution] = useState('');
+    const [action, setAction] = useState('resolve');
     const [showResolveModal, setShowResolveModal] = useState(false);
 
     useEffect(() => {
@@ -40,9 +41,10 @@ const CRMEscalationsPage = () => {
         }
 
         try {
-            await crmAPI.resolveEscalation(selectedEscalation._id, { resolution });
+            await crmAPI.resolveEscalation(selectedEscalation._id, { resolution, action });
             setShowResolveModal(false);
             setResolution('');
+            setAction('resolve');
             setSelectedEscalation(null);
             fetchEscalations();
         } catch (err) {
@@ -327,6 +329,7 @@ const CRMEscalationsPage = () => {
                                 onClick={() => {
                                     setShowResolveModal(false);
                                     setResolution('');
+                                    setAction('resolve');
                                     setSelectedEscalation(null);
                                 }}
                                 className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -350,6 +353,18 @@ const CRMEscalationsPage = () => {
                             </div>
 
                             <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Action <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                value={action}
+                                onChange={(e) => setAction(e.target.value)}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent mb-4"
+                            >
+                                <option value="resolve">Resolve (Move to next pipeline stage)</option>
+                                <option value="lost">Lost (Move directly to Lost bucket)</option>
+                            </select>
+
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Resolution Notes <span className="text-red-500">*</span>
                             </label>
                             <textarea
@@ -371,12 +386,13 @@ const CRMEscalationsPage = () => {
                                     }`}
                             >
                                 <CheckCircle className="w-5 h-5" />
-                                Mark as Resolved
+                                {action === 'lost' ? 'Mark as Lost' : 'Move to Next Stage'}
                             </button>
                             <button
                                 onClick={() => {
                                     setShowResolveModal(false);
                                     setResolution('');
+                                    setAction('resolve');
                                     setSelectedEscalation(null);
                                 }}
                                 className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium"

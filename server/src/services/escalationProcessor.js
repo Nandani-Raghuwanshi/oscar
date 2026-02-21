@@ -152,14 +152,14 @@ class EscalationProcessor {
                 await Notification.create({
                     userId: manager._id,
                     type: 'escalation',
-                    title: 'Lead Escalated',
+                    subject: 'Lead Escalated',
                     message: `Lead has been escalated to ${stage.priority} priority: ${lead.referralId?.referrerName || 'Unknown Customer'}`,
-                    metadata: {
+                    eventType: 'lead_escalation',
+                    eventData: {
                         leadId: lead._id,
                         priority: stage.priority,
                         stage: stage.stageNumber
-                    },
-                    actionUrl: `/crm/escalations`
+                    }
                 });
             } catch (notifError) {
                 console.error(`[EscalationProcessor] Failed to create notification for manager ${manager._id}:`, notifError);
@@ -183,14 +183,14 @@ class EscalationProcessor {
                 await Notification.create({
                     userId: project.builder,
                     type: 'escalation',
-                    title: 'Critical Lead Escalation',
+                    subject: 'Critical Lead Escalation',
                     message: `Lead has been escalated to critical priority: ${lead.referralId?.referrerName || 'Unknown Customer'}`,
-                    metadata: {
+                    eventType: 'lead_critical_escalation',
+                    eventData: {
                         leadId: lead._id,
                         priority: stage.priority,
                         stage: stage.stageNumber
-                    },
-                    actionUrl: `/builder/escalations`
+                    }
                 });
                 console.log(`[EscalationProcessor] Escalated lead ${lead._id} to builder ${project.builder}`);
             } catch (notifError) {
@@ -219,13 +219,13 @@ class EscalationProcessor {
                 await Notification.create({
                     userId: lead.assignedToId,
                     type: 'alert',
-                    title: 'Lead Auto-Closed',
+                    subject: 'Lead Auto-Closed',
                     message: `Lead was automatically closed as lost: ${lead.referralId?.referrerName || 'Unknown Customer'}`,
-                    metadata: {
+                    eventType: 'lead_auto_closed',
+                    eventData: {
                         leadId: lead._id,
                         reason: lostReason
-                    },
-                    actionUrl: `/crm/leads`
+                    }
                 });
             } catch (notifError) {
                 console.error(`[EscalationProcessor] Failed to create notification for sales associate:`, notifError);
@@ -243,13 +243,13 @@ class EscalationProcessor {
                 await Notification.create({
                     userId: manager._id,
                     type: 'alert',
-                    title: 'Lead Auto-Closed',
+                    subject: 'Lead Auto-Closed',
                     message: `Lead was automatically closed as lost: ${lead.referralId?.referrerName || 'Unknown Customer'}`,
-                    metadata: {
+                    eventType: 'lead_auto_closed',
+                    eventData: {
                         leadId: lead._id,
                         reason: lostReason
-                    },
-                    actionUrl: `/crm/leads`
+                    }
                 });
             } catch (notifError) {
                 console.error(`[EscalationProcessor] Failed to create notification for manager:`, notifError);
@@ -276,9 +276,10 @@ class EscalationProcessor {
                     await Notification.create({
                         userId: user._id,
                         type: 'escalation',
-                        title: 'Escalation Alert',
+                        subject: 'Escalation Alert',
                         message: `Lead requires attention: ${lead.referralId?.referrerName || 'Unknown Customer'}`,
-                        metadata: {
+                        eventType: 'lead_escalation_alert',
+                        eventData: {
                             leadId: lead._id,
                             stage: stage.stageNumber
                         }

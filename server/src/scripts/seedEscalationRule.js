@@ -68,11 +68,20 @@ async function seedDefaultEscalationRule() {
         console.log('Rule ID:', defaultRule._id);
         console.log('Stages:', defaultRule.stages.length);
         
+        await mongoose.connection.close();
+        console.log('Database connection closed');
         process.exit(0);
     } catch (error) {
         console.error('Error seeding escalation rule:', error);
+        console.error('Error details:', error.message);
+        if (error.errors) {
+            Object.keys(error.errors).forEach(key => {
+                console.error(`  - ${key}: ${error.errors[key].message}`);
+            });
+        }
+        await mongoose.connection.close();
         process.exit(1);
     }
 }
 
-seedDefaultEscalationRule();
+seedDefaultEscalationRule()

@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 import { connectDB } from '../config/database.js';
 import Lead from '../models/Lead.js';
@@ -46,9 +47,13 @@ async function migrateLeads() {
             console.log(`   ${item._id}: ${item.count}`);
         });
         
+        await mongoose.connection.close();
+        console.log('\nDatabase connection closed');
         process.exit(0);
     } catch (error) {
         console.error('Error migrating leads:', error);
+        console.error('Error details:', error.message);
+        await mongoose.connection.close();
         process.exit(1);
     }
 }

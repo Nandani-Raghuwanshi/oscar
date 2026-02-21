@@ -969,10 +969,11 @@ router.get('/escalations', authenticateToken, verifyCRMUser, async (req, res) =>
 
         const skip = (page - 1) * limit;
         const escalations = await Lead.find(filter)
-            .populate('assignedToId', 'name email')
-            .populate('sourceAdvocateId', 'name')
-            .populate('customerId', 'name email phone')
-            .populate('escalatedBy', 'name email')
+            .populate('assignedToId', 'firstName lastName email')
+            .populate('sourceAdvocateId', 'firstName lastName')
+            .populate('referralId', 'referrerName referrerEmail referrerPhone')
+            .populate('projectId', 'name')
+            .populate('escalationRuleId', 'ruleName')
             .sort({ escalatedDate: -1 })
             .skip(skip)
             .limit(parseInt(limit));
@@ -999,7 +1000,8 @@ router.patch(
     authenticateToken,
     verifyCRMUser,
     [
-        body('resolution').trim().notEmpty().withMessage('Resolution notes are required')
+        body('resolution').trim().notEmpty().withMessage('Resolution notes are required'),
+        body('action').isIn(['resolve', 'lost']).withMessage('Action must be either "resolve" or "lost"')
     ],
     async (req, res) => {
         try {
@@ -1009,7 +1011,7 @@ router.patch(
             }
 
             const leadId = req.params.id;
-            const { resolution } = req.body;
+            const { resolution, action } = req.body;
 
             if (!mongoose.Types.ObjectId.isValid(leadId)) {
                 return errorResponse(res, 400, 'Invalid lead ID');
@@ -1025,15 +1027,41 @@ router.patch(
             }
 
             lead.isEscalated = false;
+
+            // Determine next status based on action
+            let nextStatus = lead.status;
+            
+            if (action === 'lost') {
+                // Directly move to lost
+                nextStatus = 'lost';
+            } else if (action === 'resolve') {
+                // Move to next status in pipeline
+                const statusFlow = {
+                    'new': 'contacted',
+                    'contacted': 'site_visit',
+                    'site_visit': 'qualified',
+                    'qualified': 'negotiating',
+                    'negotiating': 'proposal_sent',
+                    'proposal_sent': 'converted',
+                    'converted': 'converted' // Already final
+                };
+                nextStatus = statusFlow[lead.status] || lead.status;
+            }
+
+            // Add status history entry
             lead.statusHistory.push({
-                status: lead.status,
+                status: nextStatus,
                 updatedBy: req.user.id,
-                notes: `Escalation resolved: ${resolution}`
+                updatedDate: new Date(),
+                notes: `Escalation ${action === 'lost' ? 'resolved as Lost' : 'resolved and moved to next stage'}: ${resolution}`
             });
+
+            lead.status = nextStatus;
+            lead.lastContactDate = new Date();
 
             await lead.save();
 
-            successResponse(res, 200, 'Escalation resolved', lead);
+            successResponse(res, 200, `Escalation resolved - Lead moved to ${nextStatus}`, lead);
         } catch (error) {
             errorResponse(res, 500, 'Server error', error.message);
         }

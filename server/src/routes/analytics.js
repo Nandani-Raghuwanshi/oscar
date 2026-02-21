@@ -47,10 +47,10 @@ router.get('/users', authenticateToken, authorize('admin'), async (req, res) => 
         if (endDate) filters.endDate = endDate;
 
         const userAnalytics = await analyticsService.getUserAnalytics(filters);
-        successResponse(res, userAnalytics, 'User analytics retrieved successfully');
+        successResponse(res, 200, 'User analytics retrieved successfully', userAnalytics);
     } catch (error) {
         console.error('Error fetching user analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -69,10 +69,10 @@ router.get('/projects', authenticateToken, authorize('admin', 'builder'), async 
         if (projectId) filters.projectId = projectId;
 
         const projectAnalytics = await analyticsService.getProjectAnalytics(filters);
-        successResponse(res, projectAnalytics, 'Project analytics retrieved successfully');
+        successResponse(res, 200, 'Project analytics retrieved successfully', projectAnalytics);
     } catch (error) {
         console.error('Error fetching project analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -92,10 +92,10 @@ router.get('/referrals', authenticateToken, authorize('admin', 'builder', 'crm_m
         if (status) filters.status = status;
 
         const referralAnalytics = await analyticsService.getReferralAnalytics(filters);
-        successResponse(res, referralAnalytics, 'Referral analytics retrieved successfully');
+        successResponse(res, 200, 'Referral analytics retrieved successfully', referralAnalytics);
     } catch (error) {
         console.error('Error fetching referral analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -115,10 +115,10 @@ router.get('/sales-pipeline', authenticateToken, authorize('admin', 'crm_manager
         if (assignedTo) filters.assignedTo = assignedTo;
 
         const pipelineAnalytics = await analyticsService.getSalesPipelineAnalytics(filters);
-        successResponse(res, pipelineAnalytics, 'Sales pipeline analytics retrieved successfully');
+        successResponse(res, 200, 'Sales pipeline analytics retrieved successfully', pipelineAnalytics);
     } catch (error) {
         console.error('Error fetching sales pipeline analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -138,10 +138,10 @@ router.get('/revenue', authenticateToken, authorize('admin', 'builder', 'crm_man
         if (groupBy) filters.groupBy = groupBy;
 
         const revenueAnalytics = await analyticsService.getRevenueAnalytics(filters);
-        successResponse(res, revenueAnalytics, 'Revenue analytics retrieved successfully');
+        successResponse(res, 200, 'Revenue analytics retrieved successfully', revenueAnalytics);
     } catch (error) {
         console.error('Error fetching revenue analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -160,10 +160,10 @@ router.get('/roi', authenticateToken, authorize('admin', 'builder'), async (req,
         if (projectId) filters.projectId = projectId;
 
         const roiAnalytics = await analyticsService.getROIAnalytics(filters);
-        successResponse(res, roiAnalytics, 'ROI analytics retrieved successfully');
+        successResponse(res, 200, 'ROI analytics retrieved successfully', roiAnalytics);
     } catch (error) {
         console.error('Error fetching ROI analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -183,10 +183,10 @@ router.get('/activity-timeline', authenticateToken, authorize('admin', 'builder'
         if (limit) filters.limit = parseInt(limit);
 
         const timeline = await analyticsService.getActivityTimeline(filters);
-        successResponse(res, timeline, 'Activity timeline retrieved successfully');
+        successResponse(res, 200, 'Activity timeline retrieved successfully', timeline);
     } catch (error) {
         console.error('Error fetching activity timeline:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -202,10 +202,10 @@ router.post('/custom-report', authenticateToken, authorize('admin', 'builder', '
         const reportConfig = { metrics, dimensions, filters, sort };
         const pipeline = await analyticsService.generateCustomReport(reportConfig);
 
-        successResponse(res, { pipeline, config: reportConfig }, 'Custom report generated successfully');
+        successResponse(res, 200, 'Custom report generated successfully', { pipeline, config: reportConfig });
     } catch (error) {
         console.error('Error generating custom report:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -240,7 +240,7 @@ router.get('/export/leads', authenticateToken, authorize('admin', 'crm_manager')
         res.send(exportData);
     } catch (error) {
         console.error('Error exporting leads:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -285,7 +285,7 @@ router.get('/export/referrals', authenticateToken, authorize('admin', 'builder',
         res.send(exportData);
     } catch (error) {
         console.error('Error exporting referrals:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -315,7 +315,7 @@ router.get('/export/users', authenticateToken, authorize('admin'), async (req, r
         res.send(exportData);
     } catch (error) {
         console.error('Error exporting users:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -349,7 +349,7 @@ router.get('/export/customers', authenticateToken, authorize('admin', 'builder')
         res.send(exportData);
     } catch (error) {
         console.error('Error exporting customers:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
@@ -387,7 +387,7 @@ router.get('/export/analytics', authenticateToken, authorize('admin', 'builder',
         res.send(exportData);
     } catch (error) {
         console.error('Error exporting analytics:', error);
-        errorResponse(res, error.message, 500);
+        errorResponse(res, 500, error.message);
     }
 });
 
