@@ -532,16 +532,18 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
             },
         ]);
 
-        // Count open/in-progress customer escalations for this project
+        // builder.js 535
+        // Count open/in-progress customer escalations for this project (not shown to builder)
         const openEscalations = await Escalation.countDocuments({
             projectId: projectObjId,
             status: { $in: ['open', 'in_progress'] },
         });
 
-        // Count CRM/sales escalated leads for this project
+        // Count only CRITICAL priority CRM/sales escalated leads for this project
         const crmEscalations = await Lead.countDocuments({
             projectId: projectObjId,
             isEscalated: true,
+            priority: 'critical',
             deletedAt: null,
         });
 
@@ -647,7 +649,7 @@ router.get('/escalations/:id', authenticateToken, verifyBuilder, async (req, res
 // GET /builder/crm-escalations - Get CRM/sales escalated leads for builder's project
 router.get('/crm-escalations', authenticateToken, verifyBuilder, async (req, res) => {
     try {
-        const { projectId, page = 1, limit = 20, status } = req.query;
+        const { projectId, page = 1, limit = 20, status, priority } = req.query;
 
         if (!projectId) {
             return errorResponse(res, 400, 'projectId is required');
@@ -667,11 +669,11 @@ router.get('/crm-escalations', authenticateToken, verifyBuilder, async (req, res
         const filter = {
             projectId: crmProjId,
             isEscalated: true,
-            priority: 'critical', // Only show critical priority escalations to builder
             deletedAt: null,
         };
 
         if (status) filter.status = status;
+        if (priority) filter.priority = priority;
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
