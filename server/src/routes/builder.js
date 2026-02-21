@@ -7,6 +7,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import User from '../models/User.js';
 import Customer from '../models/Customer.js';
 import Escalation from '../models/Escalation.js';
+import Lead from '../models/Lead.js';
 import Project from '../models/Project.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { USER_ROLES } from '../config/constants.js';
@@ -113,18 +114,23 @@ const upload = multer({
 
 // ============ PROJECT ENDPOINTS ============
 
-// GET /builder/projects - Get builder's project (only one per builder)
+// GET /builder/projects - Get builder's projects
 router.get('/projects', authenticateToken, verifyBuilder, async (req, res) => {
     try {
-        const project = await Project.findOne({ builder: req.user.id });
+        const builderId = new mongoose.Types.ObjectId(req.user.id);
 
-        if (!project) {
-            return successResponse(res, 200, 'No project assigned', {
-                project: null,
-            });
-        }
+        // Query by builder field OR createdBy — covers all assignment patterns
+        const projects = await Project.find({
+            $or: [
+                { builder: builderId },
+                { createdBy: builderId }
+            ]
+        }).sort({ createdAt: -1 });
 
-        successResponse(res, 200, 'Project retrieved successfully', {
+        const project = projects.length > 0 ? projects[0] : null;
+
+        successResponse(res, 200, 'Projects retrieved successfully', {
+            projects,
             project,
         });
     } catch (error) {
@@ -495,40 +501,27 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
             return errorResponse(res, 400, 'projectId is required');
         }
 
-        // Verify project access
-        const project = await Project.findById(projectId);
-        if (!project || project.builder.toString() !== req.user.id) {
+        // Verify project access — allow if builder OR createdBy matches
+        const projectObjId = new mongoose.Types.ObjectId(projectId);
+        const builderObjId = new mongoose.Types.ObjectId(req.user.id);
+        const project = await Project.findOne({
+            _id: projectObjId,
+            $or: [{ builder: builderObjId }, { createdBy: builderObjId }]
+        });
+        if (!project) {
             return errorResponse(res, 404, 'Project not found or access denied');
         }
 
-        // Calculate statistics
-        const totalCustomers = await Customer.countDocuments({
-            projectId,
-            builderId: req.user.id,
-        });
+        // Calculate statistics — filter only by projectId so we don't miss records
+        const totalCustomers = await Customer.countDocuments({ projectId: projectObjId });
 
         const statusBreakdown = await Customer.aggregate([
-            {
-                $match: {
-                    projectId: mongoose.Types.ObjectId(projectId),
-                    builderId: mongoose.Types.ObjectId(req.user.id),
-                },
-            },
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 },
-                },
-            },
+            { $match: { projectId: projectObjId } },
+            { $group: { _id: '$status', count: { $sum: 1 } } },
         ]);
 
         const inviteStats = await Customer.aggregate([
-            {
-                $match: {
-                    projectId: mongoose.Types.ObjectId(projectId),
-                    builderId: mongoose.Types.ObjectId(req.user.id),
-                },
-            },
+            { $match: { projectId: projectObjId } },
             {
                 $group: {
                     _id: null,
@@ -539,10 +532,24 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
             },
         ]);
 
-        const escalations = await Escalation.countDocuments({
-            projectId,
-            builderId: req.user.id,
-            status: { $ne: 'closed' },
+        // Count open/in-progress customer escalations for this project
+        const openEscalations = await Escalation.countDocuments({
+            projectId: projectObjId,
+            status: { $in: ['open', 'in_progress'] },
+        });
+
+        // Count CRM/sales escalated leads for this project
+        const crmEscalations = await Lead.countDocuments({
+            projectId: projectObjId,
+            isEscalated: true,
+            deletedAt: null,
+        });
+
+        // Count converted leads for this project
+        const convertedLeads = await Lead.countDocuments({
+            projectId: projectObjId,
+            status: 'converted',
+            deletedAt: null,
         });
 
         successResponse(res, 200, 'Dashboard stats retrieved', {
@@ -553,7 +560,10 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
                 deliveredCount: 0,
                 readCount: 0,
             },
-            activeEscalations: escalations,
+            activeEscalations: openEscalations + crmEscalations,
+            openEscalations,
+            crmEscalations,
+            convertedLeads,
         });
     } catch (error) {
         console.error('Dashboard stats error:', error);
@@ -573,12 +583,18 @@ router.get('/escalations', authenticateToken, verifyBuilder, async (req, res) =>
         }
 
         // Verify project access
-        const project = await Project.findById(projectId);
-        if (!project || project.builder.toString() !== req.user.id) {
+        const pObjId = new mongoose.Types.ObjectId(projectId);
+        const bObjId = new mongoose.Types.ObjectId(req.user.id);
+        const project = await Project.findOne({
+            _id: pObjId,
+            $or: [{ builder: bObjId }, { createdBy: bObjId }]
+        });
+        if (!project) {
             return errorResponse(res, 404, 'Project not found or access denied');
         }
 
-        const filter = { projectId, builderId: req.user.id };
+        // Filter by projectId only — escalations may not always have builderId
+        const filter = { projectId: pObjId };
 
         if (status) filter.status = status;
         if (priority) filter.priority = priority;
@@ -624,6 +640,63 @@ router.get('/escalations/:id', authenticateToken, verifyBuilder, async (req, res
     } catch (error) {
         console.error('Get escalation error:', error);
         errorResponse(res, 500, 'Failed to retrieve escalation');
+    }
+});
+
+
+// GET /builder/crm-escalations - Get CRM/sales escalated leads for builder's project
+router.get('/crm-escalations', authenticateToken, verifyBuilder, async (req, res) => {
+    try {
+        const { projectId, page = 1, limit = 20, status, priority } = req.query;
+
+        if (!projectId) {
+            return errorResponse(res, 400, 'projectId is required');
+        }
+
+        // Verify project access
+        const crmProjId = new mongoose.Types.ObjectId(projectId);
+        const crmBuilderId = new mongoose.Types.ObjectId(req.user.id);
+        const project = await Project.findOne({
+            _id: crmProjId,
+            $or: [{ builder: crmBuilderId }, { createdBy: crmBuilderId }]
+        });
+        if (!project) {
+            return errorResponse(res, 404, 'Project not found or access denied');
+        }
+
+        const filter = {
+            projectId: crmProjId,
+            isEscalated: true,
+            deletedAt: null,
+        };
+
+        if (status) filter.status = status;
+        if (priority) filter.priority = priority;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const leads = await Lead.find(filter)
+            .populate('assignedToId', 'firstName lastName email')
+            .populate('sourceAdvocateId', 'firstName lastName')
+            .populate('referralId', 'referrerName referrerPhone referrerEmail')
+            .sort({ escalatedDate: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await Lead.countDocuments(filter);
+
+        successResponse(res, 200, 'CRM escalations retrieved', {
+            escalations: leads,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / parseInt(limit)),
+            },
+        });
+    } catch (error) {
+        console.error('CRM escalations error:', error);
+        errorResponse(res, 500, 'Failed to retrieve CRM escalations');
     }
 });
 

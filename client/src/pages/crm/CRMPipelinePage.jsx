@@ -348,6 +348,67 @@ const CRMPipelinePage = () => {
                             </div>
                         )}
 
+                        {/* Status History with Time Tracking */}
+                        {selectedLead.statusHistory && selectedLead.statusHistory.length > 0 && (
+                            <div className="mb-6">
+                                <h4 className="text-lg font-semibold text-gray-900 mb-3">Status History</h4>
+                                <div className="space-y-2">
+                                    {selectedLead.statusHistory
+                                        .sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate))
+                                        .map((history, index, array) => {
+                                            // Calculate time spent in this status
+                                            let timeSpent = '';
+                                            if (index < array.length - 1) {
+                                                const currentDate = new Date(history.updatedDate);
+                                                const nextDate = new Date(array[index + 1].updatedDate);
+                                                const diffMs = currentDate - nextDate;
+                                                const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                                const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                if (days > 0) {
+                                                    timeSpent = ` (${days}d ${hours}h)`;
+                                                } else if (hours > 0) {
+                                                    timeSpent = ` (${hours}h)`;
+                                                } else {
+                                                    const minutes = Math.floor(diffMs / (1000 * 60));
+                                                    timeSpent = ` (${minutes}m)`;
+                                                }
+                                            } else if (index === array.length - 1) {
+                                                // For the oldest entry (first status), show time to next status
+                                                timeSpent = ' (Initial)';
+                                            }
+
+                                            return (
+                                                <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                    <div className="flex-shrink-0">
+                                                        <Calendar className="w-4 h-4 text-gray-500" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getStatusColor(history.status)}`}>
+                                                                {history.status}
+                                                            </span>
+                                                            {index === 0 && (
+                                                                <span className="text-xs font-medium text-blue-600">(Current)</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-xs text-gray-600">
+                                                                {new Date(history.updatedDate).toLocaleString()}
+                                                            </span>
+                                                            {timeSpent && (
+                                                                <span className="text-xs font-medium text-purple-600">
+                                                                    {timeSpent}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                </div>
+                            </div>
+                        )}
+
                         {(selectedLead.type === 'lead' || selectedLead.assignedToId) ? (
                             <div className="border-t border-gray-200 pt-6">
                                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Change Status</h4>
@@ -385,6 +446,36 @@ const CRMPipelinePage = () => {
         const displayPhone = customerDetails.phone;
         const assignedTo = item.assignedToId;
 
+        // Calculate time in current status
+        const calculateTimeInStatus = (lead) => {
+            if (!lead.statusHistory || lead.statusHistory.length === 0) return null;
+            
+            // Find the most recent entry for current status
+            const currentStatusEntries = lead.statusHistory
+                .filter(h => h.status === lead.status)
+                .sort((a, b) => new Date(b.updatedDate) - new Date(a.updatedDate));
+            
+            if (currentStatusEntries.length === 0) return null;
+            
+            const statusStartDate = new Date(currentStatusEntries[0].updatedDate);
+            const now = new Date();
+            const diffMs = now - statusStartDate;
+            
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            
+            if (days > 0) {
+                return `${days}d ${hours}h`;
+            } else if (hours > 0) {
+                return `${hours}h`;
+            } else {
+                const minutes = Math.floor(diffMs / (1000 * 60));
+                return `${minutes}m`;
+            }
+        };
+
+        const timeInStatus = calculateTimeInStatus(item);
+
         return (
             <div
                 onClick={() => setSelectedLead(item)}
@@ -415,6 +506,16 @@ const CRMPipelinePage = () => {
                         {item.priority || 'normal'}
                     </span>
                 </div>
+
+                {/* Time in Current Status */}
+                {timeInStatus && (
+                    <div className="mb-2 flex items-center gap-1 bg-blue-50 border border-blue-200 rounded px-2 py-1">
+                        <Clock className="w-3 h-3 text-blue-600" />
+                        <span className="text-xs font-medium text-blue-700">
+                            {timeInStatus} in this status
+                        </span>
+                    </div>
+                )}
 
                 <div className="space-y-1 text-xs text-gray-600">
                     {displayPhone && (

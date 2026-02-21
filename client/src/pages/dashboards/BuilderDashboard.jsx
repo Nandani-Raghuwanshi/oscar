@@ -10,6 +10,9 @@ const BuilderDashboard = () => {
         statusBreakdown: [],
         inviteStats: {},
         activeEscalations: 0,
+        openEscalations: 0,
+        crmEscalations: 0,
+        convertedLeads: 0,
     });
     const [loading, setLoading] = useState(true);
 
@@ -20,25 +23,19 @@ const BuilderDashboard = () => {
     const fetchProjectAndStats = async () => {
         setLoading(true);
         try {
-            // Fetch project
-            const projectResponse = await apiClient.get('/builder/projects', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-            });
+            // NOTE: apiClient interceptor returns response.data already,
+            // so actual shape is { success, message, data: { projects, project } }
+            const projectRes = await apiClient.get('/builder/projects');
+            const builderProject = projectRes?.data?.project || null;
 
-            const builderProject = await projectResponse.data || null;
             console.log('[BuilderDashboard] Fetched project:', builderProject);
             setProject(builderProject);
 
-            // Fetch statistics if project exists
             if (builderProject?._id) {
-                const statsResponse = await apiClient.get(
-                    `/builder/reports/dashboard?projectId=${builderProject._id}`,
-                    {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                    }
+                const statsRes = await apiClient.get(
+                    `/builder/reports/dashboard?projectId=${builderProject._id}`
                 );
-
-                setStats(statsResponse.data?.data || {});
+                setStats(statsRes?.data || {});
             }
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
@@ -96,18 +93,32 @@ const BuilderDashboard = () => {
 
                 <div className="bg-white rounded-lg shadow p-6">
                     <h3 className="text-sm font-semibold text-gray-600">Converted</h3>
-                    <p className="text-3xl font-bold text-purple-600 mt-2">{getStatusCount('converted')}</p>
+                    <p className="text-3xl font-bold text-purple-600 mt-2">
+                        {getStatusCount('converted')}
+                    </p>
+                    {stats.convertedLeads > 0 && (
+                        <p className="text-xs text-purple-400 mt-1">
+                            +{stats.convertedLeads} via CRM leads
+                        </p>
+                    )}
                 </div>
 
                 <div className="bg-white rounded-lg shadow p-6">
                     <h3 className="text-sm font-semibold text-gray-600">Open Escalations</h3>
                     <p className="text-3xl font-bold text-red-600 mt-2">{stats.activeEscalations || 0}</p>
+                    <div className="mt-2 space-y-0.5">
+                        {stats.openEscalations > 0 && (
+                            <p className="text-xs text-red-400">{stats.openEscalations} customer</p>
+                        )}
+                        {stats.crmEscalations > 0 && (
+                            <p className="text-xs text-orange-400">{stats.crmEscalations} CRM / sales</p>
+                        )}
+                    </div>
                 </div>
             </div>
 
             {/* Invite Stats & Project Details */}
             <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-                {/* Invite Statistics */}
                 <div className="bg-white rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Invite Statistics</h2>
                     <div className="space-y-3">
@@ -132,7 +143,6 @@ const BuilderDashboard = () => {
                     </div>
                 </div>
 
-                {/* Project Details */}
                 <div className="bg-white rounded-lg shadow p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Details</h2>
                     <div className="space-y-3">
@@ -143,12 +153,13 @@ const BuilderDashboard = () => {
                         <div>
                             <p className="text-sm text-gray-600">Status</p>
                             <span
-                                className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${project.status === 'active'
-                                    ? 'bg-green-100 text-green-700'
-                                    : project.status === 'inactive'
-                                        ? 'bg-yellow-100 text-yellow-700'
-                                        : 'bg-gray-100 text-gray-700'
-                                    }`}
+                                className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                                    project.status === 'active'
+                                        ? 'bg-green-100 text-green-700'
+                                        : project.status === 'inactive'
+                                            ? 'bg-yellow-100 text-yellow-700'
+                                            : 'bg-gray-100 text-gray-700'
+                                }`}
                             >
                                 {project.status}
                             </span>
