@@ -7,6 +7,7 @@ import { authenticateToken } from '../middleware/auth.js';
 import User from '../models/User.js';
 import Customer from '../models/Customer.js';
 import Escalation from '../models/Escalation.js';
+import Lead from '../models/Lead.js';
 import Project from '../models/Project.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { USER_ROLES } from '../config/constants.js';
@@ -116,20 +117,21 @@ const upload = multer({
 // GET /builder/projects - Get builder's project (only one per builder)
 router.get('/projects', authenticateToken, verifyBuilder, async (req, res) => {
     try {
-        const project = await Project.findOne({ builder: req.user.id });
+        // Find all projects assigned to this builder
+        const projects = await Project.find({ builder: req.user.id }).lean();
 
-        if (!project) {
-            return successResponse(res, 200, 'No project assigned', {
-                project: null,
+        if (!projects || projects.length === 0) {
+            return successResponse(res, 200, 'No projects assigned', {
+                projects: [],
             });
         }
 
-        successResponse(res, 200, 'Project retrieved successfully', {
-            project,
+        successResponse(res, 200, 'Projects retrieved successfully', {
+            projects,
         });
     } catch (error) {
         console.error('Get projects error:', error);
-        errorResponse(res, 500, 'Failed to retrieve project');
+        errorResponse(res, 500, 'Failed to retrieve projects');
     }
 });
 
@@ -539,20 +541,10 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
             },
         ]);
 
-        // Get escalated leads count (stage 2 or higher = escalated to builder)
-        const Lead = mongoose.model('Lead');
-        const escalations = await Lead.countDocuments({
+        const escalations = await Escalation.countDocuments({
             projectId,
-            isEscalated: true,
-            escalationStage: { $gte: 2 },
-            deletedAt: null,
-        });
-
-        // Get converted leads count
-        const convertedLeads = await Lead.countDocuments({
-            projectId,
-            status: 'converted',
-            deletedAt: null,
+            builderId: req.user.id,
+            status: { $ne: 'closed' },
         });
 
         successResponse(res, 200, 'Dashboard stats retrieved', {
@@ -564,7 +556,6 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
                 readCount: 0,
             },
             activeEscalations: escalations,
-            convertedLeads,
         });
     } catch (error) {
         console.error('Dashboard stats error:', error);
@@ -574,29 +565,43 @@ router.get('/reports/dashboard', authenticateToken, verifyBuilder, async (req, r
 
 // ============ ESCALATION ENDPOINTS ============
 
-// GET /builder/escalations - List escalated leads from CRM
+// GET /builder/escalations - List escalated leads (stage 2 - critical priority)
 router.get('/escalations', authenticateToken, verifyBuilder, async (req, res) => {
     try {
-        const Lead = mongoose.model('Lead');
         const { projectId, status, priority, page = 1, limit = 20 } = req.query;
 
-        if (!projectId) {
-            return errorResponse(res, 400, 'projectId is required');
+        // Verify builder has access to projects
+        const builderProjects = await Project.find({ builder: req.user.id }).select('_id');
+        const builderProjectIds = builderProjects.map(p => p._id);
+
+        if (builderProjectIds.length === 0) {
+            return successResponse(res, 200, 'No projects assigned', {
+                escalations: [],
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total: 0,
+                    pages: 0,
+                },
+            });
         }
 
-        // Verify project access
-        const project = await Project.findById(projectId);
-        if (!project || project.builder.toString() !== req.user.id) {
-            return errorResponse(res, 404, 'Project not found or access denied');
-        }
-
-        // Filter for escalated leads (stage 2 = escalated to builder)
-        const filter = { 
-            projectId,
+        // Build filter - only show leads escalated to builder (stage 2+)
+        const filter = {
+            projectId: { $in: builderProjectIds },
             isEscalated: true,
-            escalationStage: { $gte: 2 }, // Stage 2 or higher (builder escalation)
+            escalationStage: { $gte: 2 }, // Stage 2 or higher (critical priority)
             deletedAt: null
         };
+
+        // Apply additional filters
+        if (projectId && mongoose.Types.ObjectId.isValid(projectId)) {
+            // Verify this projectId belongs to the builder
+            if (!builderProjectIds.some(id => id.toString() === projectId)) {
+                return errorResponse(res, 403, 'Access denied to this project');
+            }
+            filter.projectId = mongoose.Types.ObjectId(projectId);
+        }
 
         if (status) filter.status = status;
         if (priority) filter.priority = priority;
@@ -604,17 +609,37 @@ router.get('/escalations', authenticateToken, verifyBuilder, async (req, res) =>
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
         const escalations = await Lead.find(filter)
-            .populate('referralId')
             .populate('assignedToId', 'firstName lastName email')
             .populate('sourceAdvocateId', 'firstName lastName')
+            .populate('referralId', 'referrerName referrerEmail referrerPhone')
+            .populate('projectId', 'name')
+            .populate('escalationRuleId', 'ruleName')
             .skip(skip)
             .limit(parseInt(limit))
-            .sort({ priority: -1, escalatedDate: -1, createdAt: -1 });
+            .sort({ priority: -1, escalatedDate: -1 })
+            .lean();
 
         const total = await Lead.countDocuments(filter);
 
+        // Group escalations by project
+        const escalationsByProject = {};
+        escalations.forEach(escalation => {
+            const projectId = escalation.projectId?._id?.toString() || 'unknown';
+            const projectName = escalation.projectId?.name || 'Unknown Project';
+            
+            if (!escalationsByProject[projectId]) {
+                escalationsByProject[projectId] = {
+                    projectId,
+                    projectName,
+                    escalations: []
+                };
+            }
+            escalationsByProject[projectId].escalations.push(escalation);
+        });
+
         successResponse(res, 200, 'Escalations retrieved', {
             escalations,
+            escalationsByProject: Object.values(escalationsByProject),
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
@@ -631,13 +656,28 @@ router.get('/escalations', authenticateToken, verifyBuilder, async (req, res) =>
 // GET /builder/escalations/:id - Get escalation details
 router.get('/escalations/:id', authenticateToken, verifyBuilder, async (req, res) => {
     try {
-        const escalation = await Escalation.findById(req.params.id)
-            .populate('customerId')
-            .populate('assignedTo', 'name email')
-            .populate('resolvedBy', 'name email');
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return errorResponse(res, 400, 'Invalid escalation ID');
+        }
 
-        if (!escalation || escalation.builderId.toString() !== req.user.id) {
+        // Verify builder has access to projects
+        const builderProjects = await Project.find({ builder: req.user.id }).select('_id');
+        const builderProjectIds = builderProjects.map(p => p._id.toString());
+
+        const escalation = await Lead.findById(req.params.id)
+            .populate('assignedToId', 'firstName lastName email')
+            .populate('sourceAdvocateId', 'firstName lastName email')
+            .populate('referralId')
+            .populate('projectId', 'name')
+            .populate('escalationRuleId', 'ruleName')
+            .lean();
+
+        if (!escalation || !builderProjectIds.includes(escalation.projectId?._id?.toString())) {
             return errorResponse(res, 404, 'Escalation not found or access denied');
+        }
+
+        if (!escalation.isEscalated || escalation.escalationStage < 2) {
+            return errorResponse(res, 404, 'Escalation not found or not at builder stage');
         }
 
         successResponse(res, 200, 'Escalation retrieved', escalation);

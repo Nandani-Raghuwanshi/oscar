@@ -26,7 +26,8 @@ const BuilderDashboard = () => {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
 
-            const builderProject = projectResponse.data?.data?.project || null;
+            const builderProject = await projectResponse.data || null;
+            console.log('[BuilderDashboard] Fetched project:', builderProject);
             setProject(builderProject);
 
             // Fetch statistics if project exists
