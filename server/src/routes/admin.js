@@ -1,7 +1,10 @@
 import express from 'express';
 import { body, query, validationResult } from 'express-validator';
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import AuditLog from '../models/AuditLog.js';
+import Lead from '../models/Lead.js';
+import Project from '../models/Project.js';
 import { HTTP_STATUS, USER_ROLES } from '../config/constants.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { authenticateToken, authorize } from '../middleware/auth.js';
@@ -439,6 +442,72 @@ router.get('/audit-logs', [
                 total,
                 pages: Math.ceil(total / limit)
             }
+        });
+    } catch (error) {
+        errorResponse(res, HTTP_STATUS.INTERNAL_ERROR, error.message);
+    }
+});
+
+// ─── Admin CRM Escalations (mirrors builder /crm-escalations) ────────────────
+
+// GET /admin/crm-escalations/projects - All projects (admin sees all)
+router.get('/crm-escalations/projects', async (req, res) => {
+    try {
+        const projects = await Project.find({ deletedAt: null }).select('_id name').sort({ name: 1 });
+        successResponse(res, HTTP_STATUS.OK, 'Projects retrieved', { projects });
+    } catch (error) {
+        errorResponse(res, HTTP_STATUS.INTERNAL_ERROR, error.message);
+    }
+});
+
+// GET /admin/crm-escalations - Critical escalated leads for a given project (admin access, no builder restriction)
+router.get('/crm-escalations', [
+    query('projectId').notEmpty().withMessage('projectId is required'),
+    query('page').optional().isInt({ min: 1 }),
+    query('limit').optional().isInt({ min: 1, max: 100 }),
+    query('status').optional().trim(),
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return errorResponse(res, HTTP_STATUS.BAD_REQUEST, 'Validation failed', errors.array());
+        }
+
+        const { projectId, page = 1, limit = 20, status } = req.query;
+
+        if (!mongoose.Types.ObjectId.isValid(projectId)) {
+            return errorResponse(res, HTTP_STATUS.BAD_REQUEST, 'Invalid projectId');
+        }
+
+        const filter = {
+            projectId: new mongoose.Types.ObjectId(projectId),
+            isEscalated: true,
+            priority: 'critical',
+            deletedAt: null,
+        };
+
+        if (status) filter.status = status;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const leads = await Lead.find(filter)
+            .populate('assignedToId', 'firstName lastName email')
+            .populate('sourceAdvocateId', 'firstName lastName')
+            .populate('referralId', 'referrerName referrerPhone referrerEmail')
+            .sort({ escalatedDate: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await Lead.countDocuments(filter);
+
+        successResponse(res, HTTP_STATUS.OK, 'CRM escalations retrieved', {
+            escalations: leads,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / parseInt(limit)),
+            },
         });
     } catch (error) {
         errorResponse(res, HTTP_STATUS.INTERNAL_ERROR, error.message);

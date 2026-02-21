@@ -17,6 +17,7 @@ import { AdminDashboard } from './pages/dashboards/AdminDashboard';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminProjectsPage } from './pages/admin/AdminProjectsPage';
 import { AdminEscalationsPage } from './pages/admin/AdminEscalationsPage';
+import { AdminAuditTrailPage } from './pages/admin/AdminAuditTrailPage';
 import AdminNotificationsPage from './pages/admin/AdminNotificationsPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 
@@ -91,6 +92,7 @@ function App() {
                     <Route path="users" element={<AdminUsersPage />} />
                     <Route path="projects" element={<AdminProjectsPage />} />
                     <Route path="escalations" element={<AdminEscalationsPage />} />
+                    <Route path="audit-trail" element={<AdminAuditTrailPage />} />
                     <Route path="notifications" element={<AdminNotificationsPage />} />
                     <Route path="analytics" element={<AdminAnalyticsPage />} />
                 </Route>

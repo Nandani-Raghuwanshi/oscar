@@ -37,6 +37,12 @@ export const AdminNavbar = () => {
                             to="/admin/escalations"
                             className="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                         >
+                            Escalations
+                        </Link>
+                        <Link
+                            to="/admin/audit-trail"
+                            className="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
                             Audit Trail
                         </Link>
                         <Link

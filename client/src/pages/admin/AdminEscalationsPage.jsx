@@ -1,202 +1,229 @@
-import React, { useEffect, useState } from 'react';
-import { adminAPI } from '../../api/client';
+import React, { useState, useEffect } from 'react';
+import apiClient from '../../api/client';
 
 export const AdminEscalationsPage = () => {
-    const [logs, setLogs] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 });
-    const [filters, setFilters] = useState({ action: '', userId: '' });
+    const [crmEscalations, setCrmEscalations] = useState([]);
+    const [selectedProject, setSelectedProject] = useState('');
+    const [projects, setProjects] = useState([]);
+    const [crmLoading, setCrmLoading] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('');
+    const [crmPage, setCrmPage] = useState(1);
+
+    const ITEMS_PER_PAGE = 20;
 
     useEffect(() => {
-        loadAuditLogs();
-    }, [pagination.page, filters]);
+        fetchProjects();
+    }, []);
 
-    const loadAuditLogs = async () => {
+    useEffect(() => {
+        if (!selectedProject) return;
+        fetchCrmEscalations();
+    }, [selectedProject, statusFilter, crmPage]);
+
+    const fetchProjects = async () => {
         try {
-            setLoading(true);
-            const params = {
-                page: pagination.page,
-                limit: pagination.limit,
-                ...filters
-            };
-
-            // Remove empty filters
-            Object.keys(params).forEach(key => {
-                if (params[key] === '') delete params[key];
-            });
-
-            const response = await adminAPI.getAuditLogs(params);
-            setLogs(response.data.logs);
-            setPagination(prev => ({ ...prev, ...response.data.pagination }));
-            setError(null);
-        } catch (err) {
-            setError(err.message || 'Failed to load audit logs');
-            console.error('Error loading logs:', err);
-        } finally {
-            setLoading(false);
+            const res = await apiClient.get('/admin/crm-escalations/projects');
+            const projectList = res?.data?.projects || [];
+            if (projectList.length > 0) {
+                setProjects(projectList);
+                setSelectedProject(projectList[0]._id);
+            }
+        } catch (error) {
+            console.error('Failed to fetch projects:', error);
         }
     };
 
-    const formatDate = (date) => {
-        return new Date(date).toLocaleString();
+    const fetchCrmEscalations = async () => {
+        setCrmLoading(true);
+        try {
+            const params = new URLSearchParams({
+                projectId: selectedProject,
+                page: crmPage,
+                limit: ITEMS_PER_PAGE,
+            });
+            if (statusFilter) params.append('status', statusFilter);
+
+            const res = await apiClient.get(`/admin/crm-escalations?${params}`);
+            setCrmEscalations(res?.data?.escalations || []);
+        } catch (error) {
+            console.error('Failed to fetch CRM escalations:', error);
+        } finally {
+            setCrmLoading(false);
+        }
     };
 
-    const getActionColor = (action) => {
-        if (action.includes('CREATE')) return 'bg-green-100 text-green-800';
-        if (action.includes('UPDATE') || action.includes('CHANGE')) return 'bg-blue-100 text-blue-800';
-        if (action.includes('DELETE')) return 'bg-red-100 text-red-800';
-        return 'bg-gray-100 text-gray-800';
+    const getPriorityColor = (priority) => {
+        const colors = {
+            critical: 'bg-red-100 text-red-700',
+            high: 'bg-orange-100 text-orange-700',
+            medium: 'bg-yellow-100 text-yellow-700',
+            low: 'bg-blue-100 text-blue-700',
+        };
+        return colors[priority] || 'bg-gray-100 text-gray-700';
     };
 
-    const ACTIONS = [
-        'USER_CREATE',
-        'USER_UPDATE',
-        'USER_DELETE',
-        'USER_ROLE_CHANGE',
-        'PROJECT_CREATE',
-        'PROJECT_UPDATE',
-        'PROJECT_DELETE',
-        'BULK_USER_IMPORT',
-        'LOGIN',
-        'LOGOUT'
-    ];
+    const getStatusColor = (status) => {
+        const colors = {
+            open: 'bg-red-100 text-red-700',
+            in_progress: 'bg-yellow-100 text-yellow-700',
+            resolved: 'bg-green-100 text-green-700',
+            closed: 'bg-gray-100 text-gray-700',
+            new: 'bg-blue-100 text-blue-700',
+            contacted: 'bg-indigo-100 text-indigo-700',
+            site_visit: 'bg-purple-100 text-purple-700',
+            qualified: 'bg-teal-100 text-teal-700',
+            negotiating: 'bg-orange-100 text-orange-700',
+            proposal_sent: 'bg-yellow-100 text-yellow-700',
+            converted: 'bg-green-100 text-green-700',
+            lost: 'bg-red-100 text-red-700',
+        };
+        return colors[status] || 'bg-gray-100 text-gray-700';
+    };
+
+    const selectedProjectName = projects.find((p) => p._id === selectedProject)?.name || '';
 
     return (
         <div className="py-6">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Audit Trail</h2>
-            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Critical CRM / Sales Escalations</h2>
 
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow p-4 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Project Selection */}
+            <div className="mb-6 bg-white rounded-lg shadow p-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select Project</label>
+                {projects.length === 0 ? (
+                    <p className="text-sm text-gray-500">No projects found.</p>
+                ) : (
                     <select
-                        value={filters.action}
-                        onChange={(e) => setFilters({ ...filters, action: e.target.value })}
-                        className="border rounded px-3 py-2"
+                        value={selectedProject}
+                        onChange={(e) => {
+                            setSelectedProject(e.target.value);
+                            setCrmPage(1);
+                        }}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     >
-                        <option value="">All Actions</option>
-                        {ACTIONS.map(action => (
-                            <option key={action} value={action}>{action}</option>
+                        <option value="">Choose a project</option>
+                        {projects.map((project) => (
+                            <option key={project._id} value={project._id}>
+                                {project.name}
+                            </option>
                         ))}
                     </select>
-                    <div className="md:col-span-2">
-                        <button
-                            onClick={() => setFilters({ action: '', userId: '' })}
-                            className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
-                        >
-                            Clear Filters
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700">
-                    {error}
-                </div>
-            )}
-
-            {/* Audit Logs Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                {loading ? (
-                    <div className="p-6 text-center text-gray-600">Loading audit logs...</div>
-                ) : logs.length === 0 ? (
-                    <div className="p-6 text-center text-gray-600">No audit logs found</div>
-                ) : (
-                    <>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Performed By</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Target</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {logs.map((log) => (
-                                        <tr key={log._id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {formatDate(log.createdAt)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded ${getActionColor(log.action)}`}>
-                                                    {log.action}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">
-                                                    {log.performedBy?.firstName} {log.performedBy?.lastName}
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {log.performedBy?.email}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {log.targetUser && (
-                                                    <div className="text-sm">
-                                                        <div className="text-gray-900">
-                                                            {log.targetUser.firstName} {log.targetUser.lastName}
-                                                        </div>
-                                                        <div className="text-xs text-gray-500">
-                                                            {log.targetUser.email}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {log.targetProject && (
-                                                    <div className="text-sm text-gray-900">
-                                                        Project: {log.targetProject.name}
-                                                    </div>
-                                                )}
-                                                {!log.targetUser && !log.targetProject && (
-                                                    <span className="text-sm text-gray-400">-</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                {log.details && (
-                                                    <div className="max-w-xs truncate">
-                                                        {JSON.stringify(log.details)}
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Pagination */}
-                        <div className="bg-gray-50 px-6 py-3 flex justify-between items-center">
-                            <div className="text-sm text-gray-700">
-                                Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
-                            </div>
-                            <div className="space-x-2">
-                                <button
-                                    onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                                    disabled={pagination.page === 1}
-                                    className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                                >
-                                    Previous
-                                </button>
-                                <span className="px-3 py-1">
-                                    Page {pagination.page} of {pagination.pages}
-                                </span>
-                                <button
-                                    onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                                    disabled={pagination.page >= pagination.pages}
-                                    className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </>
                 )}
             </div>
+
+            {selectedProject && (
+                <>
+                    {/* Filters */}
+                    <div className="mb-6 bg-white rounded-lg shadow p-4">
+                        <div className="grid grid-cols-1 gap-4">
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => { setStatusFilter(e.target.value); setCrmPage(1); }}
+                                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                            >
+                                <option value="">All Statuses</option>
+                                <option value="new">New</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="site_visit">Site Visit</option>
+                                <option value="qualified">Qualified</option>
+                                <option value="negotiating">Negotiating</option>
+                                <option value="proposal_sent">Proposal Sent</option>
+                                <option value="converted">Converted</option>
+                                <option value="lost">Lost</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* CRM Escalations Table */}
+                    <div className="bg-white rounded-lg shadow overflow-hidden">
+                        <div className="px-6 py-3 bg-red-50 border-b border-red-200">
+                            <p className="text-sm text-red-700 font-medium">
+                                🔴 Critical priority leads escalated by CRM / Sales team for <strong>{selectedProjectName}</strong>
+                            </p>
+                        </div>
+                        {crmLoading ? (
+                            <div className="p-8 text-center text-gray-500">Loading...</div>
+                        ) : crmEscalations.length === 0 ? (
+                            <div className="p-8 text-center text-gray-500">
+                                No critical CRM escalations found for <strong>{selectedProjectName}</strong>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 border-b border-gray-200">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Lead / Referrer</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Assigned To (CRM)</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Pipeline Status</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Priority</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Escalation Reason</th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Escalated On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {crmEscalations.map((lead) => (
+                                                <tr key={lead._id} className="border-b border-gray-200 hover:bg-red-50">
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <p className="font-medium text-gray-900">
+                                                            {lead.referralId?.referrerName || '—'}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                            {lead.referralId?.referrerPhone || lead.referralId?.referrerEmail || ''}
+                                                        </p>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                                        {lead.assignedToId
+                                                            ? `${lead.assignedToId.firstName} ${lead.assignedToId.lastName}`
+                                                            : <span className="text-gray-400 italic">Unassigned</span>
+                                                        }
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}>
+                                                            {lead.status?.replace(/_/g, ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm">
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(lead.priority)}`}>
+                                                            {lead.priority}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                                                        <p className="truncate" title={lead.escalationReason}>
+                                                            {lead.escalationReason || '—'}
+                                                        </p>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600">
+                                                        {lead.escalatedDate
+                                                            ? new Date(lead.escalatedDate).toLocaleDateString()
+                                                            : '—'}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+                                    <button
+                                        onClick={() => setCrmPage(Math.max(1, crmPage - 1))}
+                                        disabled={crmPage === 1}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                    >
+                                        Previous
+                                    </button>
+                                    <span className="text-sm text-gray-600">Page {crmPage}</span>
+                                    <button
+                                        onClick={() => setCrmPage(crmPage + 1)}
+                                        disabled={crmEscalations.length < ITEMS_PER_PAGE}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </>
+            )}
         </div>
     );
 };

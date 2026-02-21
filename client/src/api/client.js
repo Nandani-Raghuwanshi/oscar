@@ -51,7 +51,11 @@ export const adminAPI = {
     getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
 
     // Audit Logs
-    getAuditLogs: (params) => apiClient.get('/admin/audit-logs', { params })
+    getAuditLogs: (params) => apiClient.get('/admin/audit-logs', { params }),
+
+    // CRM Escalations (admin view - same as builder but across all projects)
+    getCrmEscalationProjects: () => apiClient.get('/admin/crm-escalations/projects'),
+    getCrmEscalations: (params) => apiClient.get('/admin/crm-escalations', { params }),
 };
 
 export const projectAPI = {
