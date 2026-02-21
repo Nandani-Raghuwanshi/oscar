@@ -1,0 +1,3 @@
+name,email,phone,address,createAdvocateAccount
+Test Customer 1,csvtest1@test.com,5559876543,789 CSV St,true
+Test Customer 2,csvtest2@test.com,5559876544,012 CSV Ave,false

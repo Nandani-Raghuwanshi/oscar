@@ -7,7 +7,19 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "nodemon src/index.js",
-        "test": "jest --detectOpenHandles"
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest --detectOpenHandles",
+        "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch --detectOpenHandles",
+        "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage --detectOpenHandles",
+        "test:journeys": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys --detectOpenHandles",
+        "test:auth": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/01-auth.test.js --detectOpenHandles",
+        "test:admin": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/02-admin.test.js --detectOpenHandles",
+        "test:builder": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/03-builder.test.js --detectOpenHandles",
+        "test:advocate": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/04-project-advocate.test.js --detectOpenHandles",
+        "test:brand": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/05-brand-advocate.test.js --detectOpenHandles",
+        "test:crm": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/06-crm.test.js --detectOpenHandles",
+        "test:notifications": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/07-notifications.test.js --detectOpenHandles",
+        "test:analytics": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/08-analytics.test.js --detectOpenHandles",
+        "test:cross-cutting": "NODE_OPTIONS='--experimental-vm-modules' jest tests/journeys/09-cross-cutting.test.js --detectOpenHandles"
     },
     "keywords": [
         "construction",
@@ -33,6 +45,7 @@
     },
     "devDependencies": {
         "jest": "^29.7.0",
+        "mongodb-memory-server": "^9.5.0",
         "nodemon": "^3.0.1",
         "supertest": "^7.1.3"
     }

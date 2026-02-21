@@ -76,7 +76,6 @@ router.post('/login', [
         }
 
         const { loginId, password } = req.body;
-        console.log('Login attempt with:', { loginId }); // Debug log
         const normalizedLoginId = loginId?.trim();
         const isEmail = normalizedLoginId?.includes('@');
         const advocateRoles = new Set([USER_ROLES.PROJECT_ADVOCATE, USER_ROLES.BRAND_ADVOCATE]);
@@ -86,16 +85,18 @@ router.post('/login', [
             ? { email: normalizedLoginId.toLowerCase() }
             : { phone: normalizedLoginId }
         ).select('+password');
-        console.log('User found:', user ? user.email || user.phone : 'No user'); // Debug log
         if (!user) {
             return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Invalid email/phone or password');
         }
 
+        // Check if user is active
+        if (!user.isActive) {
+            return errorResponse(res, HTTP_STATUS.FORBIDDEN, 'Account is inactive');
+        }
+
         // Check password
         const isPasswordValid = await user.comparePassword(password);
-        console.log('Password valid:', isPasswordValid); // Debug log
         const plainPasswordMatch = user.password === password;
-        console.log('Plain password match:', plainPasswordMatch, user.password + "/" + password); // Debug log
         if (!isPasswordValid && !plainPasswordMatch) {
             return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Invalid email/phone or password');
         }

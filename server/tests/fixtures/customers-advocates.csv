@@ -1,0 +1,3 @@
+name,email,phone,address,createAdvocateAccount
+Advocate Customer 1,advocate1@test.com,5559990001,100 Adv St,true
+Advocate Customer 2,advocate2@test.com,5559990002,200 Adv Ave,true

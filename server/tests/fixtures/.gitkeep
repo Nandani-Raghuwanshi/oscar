@@ -1,0 +1,5 @@
+# Test Fixtures
+
+This directory contains test fixture files (like CSV uploads) generated dynamically during tests.
+
+Files in this directory are created and cleaned up by tests as needed.

@@ -13,6 +13,8 @@ A comprehensive referral management system for construction projects with multi-
 - **[Phase 5 Setup Guide](docs/PHASE_5_BRAND_ADVOCATES.md)** - Complete Phase 5 documentation
 - **[Phase 7 Complete](docs/PHASE_7_CRM_ADVANCED.md)** - CRM Advanced: Note validation, escalations, payments ✅
 - **[Phase 9 Complete](docs/PHASE_9_ANALYTICS.md)** - Reporting & Analytics: Comprehensive analytics with export ✅
+- **[Backend Testing Suite](docs/BACKEND_TESTING.md)** - Complete E2E test implementation (185+ tests) ✅
+- [Backend E2E Test Plan](docs/to-to-test.md) - End-to-end backend journeys and coverage
 - [CRM Sales Associate Management](docs/CRM_SALES_ASSOCIATE_MANAGEMENT.md) - Sales associate logins & referral assignment
 - [CRM Pipeline Customer Mapping](docs/CRM_PIPELINE_CUSTOMER_MAPPING.md) - Customer field fallbacks for pipeline cards
 - [Login Redirect Fix](LOGIN_REDIRECT_FIX.md) - Post-login navigation and API auth fixes

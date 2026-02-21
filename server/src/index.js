@@ -23,8 +23,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
-// Connect Database
-await connectDB();
+
+// Connect Database (skip in test mode as tests use in-memory MongoDB)
+if (process.env.NODE_ENV !== 'test') {
+    await connectDB();
+}
 
 // Health check
 app.get('/health', (req, res) => {
@@ -48,7 +51,12 @@ app.use(notFoundHandler);
 // Error handler
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Export app for testing
+export default app;
+
+// Start server only if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
