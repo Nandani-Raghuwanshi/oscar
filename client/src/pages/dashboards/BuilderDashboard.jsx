@@ -26,12 +26,13 @@ const BuilderDashboard = () => {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
 
-            const builderProject = await projectResponse.data || null;
+            const builderProject = projectResponse.data?.data?.project || null;
             console.log('[BuilderDashboard] Fetched project:', builderProject);
             setProject(builderProject);
 
             // Fetch statistics if project exists
             if (builderProject?._id) {
+                console.log('[BuilderDashboard] Fetching stats for projectId:', builderProject._id);
                 const statsResponse = await apiClient.get(
                     `/builder/reports/dashboard?projectId=${builderProject._id}`,
                     {
@@ -39,6 +40,7 @@ const BuilderDashboard = () => {
                     }
                 );
 
+                console.log('[BuilderDashboard] Stats response:', statsResponse.data);
                 setStats(statsResponse.data?.data || {});
             }
         } catch (error) {
