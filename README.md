@@ -11,6 +11,9 @@ A comprehensive referral management system for construction projects with multi-
 - [Phase 4 Setup Guide](docs/PHASE_4_PROJECT_ADVOCATES.md) - Phase 4 technical guide
 - **[Phase 5 Progress](PHASE_5_STARTED.md)** - Brand Advocates started 🚀
 - **[Phase 5 Setup Guide](docs/PHASE_5_BRAND_ADVOCATES.md)** - Complete Phase 5 documentation
+- **[Phase 7 Complete](docs/PHASE_7_CRM_ADVANCED.md)** - CRM Advanced: Note validation, escalations, payments ✅
+- [CRM Sales Associate Management](docs/CRM_SALES_ASSOCIATE_MANAGEMENT.md) - Sales associate logins & referral assignment
+- [CRM Pipeline Customer Mapping](docs/CRM_PIPELINE_CUSTOMER_MAPPING.md) - Customer field fallbacks for pipeline cards
 - [Login Redirect Fix](LOGIN_REDIRECT_FIX.md) - Post-login navigation and API auth fixes
 - [Phase 1 Setup](PHASE_1_SETUP.md) - Detailed setup instructions
 - [Phase 2 Setup](PHASE_2_SETUP.md) - Overview of what's been implemented
@@ -42,9 +45,18 @@ BuiltCred is a referral program platform for construction projects that enables:
 - **Brand Advocates:** Cross-project referrals, reward tracking
 - **Admins:** Complete system control, user management, reporting
 
-## Current Status: Phase 5 - Complete ✅
+## Current Status: Phase 7 - Complete ✅
 
-Phase 1 (infrastructure & authentication), Phase 2 (admin & user management), Phase 3 (builder/developer module), Phase 4 (project advocates module), and Phase 5 (Brand Advocates module) are complete. Ready for Phase 6 planning.
+Phases 1-7 are complete:
+- Phase 1: Infrastructure & Authentication
+- Phase 2: Admin & User Management
+- Phase 3: Builder/Developer Module
+- Phase 4: Project Advocates Module
+- Phase 5: Brand Advocates Module
+- Phase 6: CRM/Sales Core Module
+- Phase 7: CRM/Sales Advanced (Note Validation, Escalations, Payments)
+
+**Ready for Phase 8:** Notifications & Communication (WhatsApp integration)
 
 ### ✅ Phase 1 - Complete
 - Full authentication system (register, login, JWT)

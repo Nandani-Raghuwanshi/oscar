@@ -74,6 +74,15 @@ const referralSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false
+        },
+        assignedToId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            sparse: true
+        },
+        assignedDate: {
+            type: Date,
+            sparse: true
         }
     },
     {

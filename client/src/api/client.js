@@ -107,4 +107,44 @@ export const brandAPI = {
     getProjectDocuments: () => apiClient.get('/brand/project/documents')
 };
 
+export const crmAPI = {
+    // Advocate Management
+    getAdvocates: (params) => apiClient.get('/crm/advocates', { params }),
+    getAdvocatePerformance: (id) => apiClient.get(`/crm/advocates/${id}/performance`),
+
+    // Sales Associates
+    getSalesAssociates: () => apiClient.get('/crm/sales-associates'),
+
+    // Referral Management
+    getReferrals: (params) => apiClient.get('/crm/referrals', { params }),
+
+    // Referral Assignment
+    assignReferral: (id, data) => apiClient.patch(`/crm/referrals/${id}/assign`, data),
+    batchAssignReferrals: (data) => apiClient.post('/crm/referrals/batch-assign', data),
+
+    // Lead Management
+    getLeads: (params) => apiClient.get('/crm/leads', { params }),
+    updateLeadStatus: (id, data) => apiClient.patch(`/crm/leads/${id}/status`, data),
+
+    // Call Logging
+    logCall: (data) => apiClient.post('/crm/call-logs', data),
+    getCallLogs: (leadId, params) => apiClient.get(`/crm/leads/${leadId}/call-logs`, { params }),
+
+    // Daily Status
+    submitDailyStatus: (data) => apiClient.post('/crm/daily-status', data),
+    getMyDailyStatus: (params) => apiClient.get('/crm/my-daily-status', { params }),
+
+    // Referral Summary
+    getReferralSummary: (params) => apiClient.get('/crm/referral-summary', { params }),
+
+    // Payment Tracking
+    recordPayment: (leadId, data) => apiClient.post(`/crm/leads/${leadId}/payment`, data),
+    getPaymentHistory: (leadId) => apiClient.get(`/crm/leads/${leadId}/payment-history`),
+    getPaymentSummary: (params) => apiClient.get('/crm/payment-summary', { params }),
+
+    // Escalation Management
+    getEscalations: (params) => apiClient.get('/crm/escalations', { params }),
+    resolveEscalation: (id, data) => apiClient.patch(`/crm/escalations/${id}/resolve`, data)
+};
+
 export default apiClient;

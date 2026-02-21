@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { crmAPI } from '../../api/client';
+import { crmAPI } from '../api/client';
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Users, TrendingUp, AlertCircle, Phone, Calendar, ArrowRight } from 'lucide-react';
 
@@ -8,7 +8,6 @@ const CRMDashboard = () => {
         summary: null,
         advocates: [],
         recentLeads: [],
-        recentReferrals: [],
         loading: true,
         error: null
     });
@@ -18,18 +17,16 @@ const CRMDashboard = () => {
             try {
                 setDashboardData(prev => ({ ...prev, loading: true }));
 
-                const [summaryRes, advocatesRes, leadsRes, referralsRes] = await Promise.all([
+                const [summaryRes, advocatesRes, leadsRes] = await Promise.all([
                     crmAPI.getReferralSummary(),
                     crmAPI.getAdvocates({ limit: 5 }),
-                    crmAPI.getLeads({ limit: 5, sort: '-createdAt' }),
-                    crmAPI.getReferrals({ limit: 10, sort: '-createdAt' })
+                    crmAPI.getLeads({ limit: 10, sort: '-createdAt' })
                 ]);
 
                 setDashboardData({
                     summary: summaryRes.data,
                     advocates: advocatesRes.data?.data || [],
                     recentLeads: leadsRes.data?.data || [],
-                    recentReferrals: referralsRes.data?.data || [],
                     loading: false,
                     error: null
                 });
@@ -79,25 +76,11 @@ const CRMDashboard = () => {
                     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-gray-500 text-sm font-medium">Total Referrals</p>
-                                <p className="text-3xl font-bold text-gray-900">{dashboardData.summary?.totalReferrals || 0}</p>
-                                <p className="text-xs text-gray-400 mt-1">Unassigned referrals</p>
+                                <p className="text-gray-500 text-sm font-medium">Total Leads</p>
+                                <p className="text-3xl font-bold text-gray-900">{dashboardData.summary?.total || 0}</p>
                             </div>
                             <div className="bg-blue-100 p-3 rounded-lg">
                                 <Users className="w-6 h-6 text-blue-600" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-500 text-sm font-medium">Total Leads</p>
-                                <p className="text-3xl font-bold text-gray-900">{dashboardData.summary?.totalLeads || 0}</p>
-                                <p className="text-xs text-gray-400 mt-1">Assigned to sales</p>
-                            </div>
-                            <div className="bg-purple-100 p-3 rounded-lg">
-                                <TrendingUp className="w-6 h-6 text-purple-600" />
                             </div>
                         </div>
                     </div>
@@ -122,6 +105,18 @@ const CRMDashboard = () => {
                             </div>
                             <div className="bg-green-100 p-3 rounded-lg">
                                 <TrendingUp className="w-6 h-6 text-green-600" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-gray-500 text-sm font-medium">Converted</p>
+                                <p className="text-3xl font-bold text-purple-600">{dashboardData.summary?.byStatus?.converted || 0}</p>
+                            </div>
+                            <div className="bg-purple-100 p-3 rounded-lg">
+                                <TrendingUp className="w-6 h-6 text-purple-600" />
                             </div>
                         </div>
                     </div>
@@ -204,36 +199,28 @@ const CRMDashboard = () => {
 
                     {/* Recent Leads */}
                     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                        <h3 className="text-lg font-bold text-gray-900 mb-6">Recent Referrals</h3>
-                        {dashboardData.recentReferrals.length > 0 ? (
+                        <h3 className="text-lg font-bold text-gray-900 mb-6">Recent Leads</h3>
+                        {dashboardData.recentLeads.length > 0 ? (
                             <div className="space-y-4">
-                                {dashboardData.recentReferrals.slice(0, 5).map(referral => (
-                                    <div key={referral._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                        <div className="flex-1">
-                                            <p className="font-semibold text-gray-900">{referral.referrerName}</p>
-                                            <p className="text-sm text-gray-500">{referral.referrerPhone}</p>
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                By {referral.advocateId?.firstName} {referral.advocateId?.lastName}
-                                            </p>
+                                {dashboardData.recentLeads.slice(0, 5).map(lead => (
+                                    <div key={lead._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{lead.customerId?.name || 'Unknown'}</p>
+                                            <p className="text-sm text-gray-500">{lead.status}</p>
                                         </div>
-                                        <div className="text-right">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${referral.status === 'converted' ? 'bg-green-100 text-green-800' :
-                                                    referral.status === 'qualified' ? 'bg-blue-100 text-blue-800' :
-                                                        referral.status === 'contacted' ? 'bg-yellow-100 text-yellow-800' :
-                                                            referral.status === 'lost' ? 'bg-red-100 text-red-800' :
-                                                                'bg-gray-100 text-gray-800'
+                                        <div>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${lead.priority === 'high' ? 'bg-red-100 text-red-800' :
+                                                    lead.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-green-100 text-green-800'
                                                 }`}>
-                                                {referral.status}
+                                                {lead.priority}
                                             </span>
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                {new Date(referral.createdAt).toLocaleDateString()}
-                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-500 text-center py-12">No referrals yet</p>
+                            <p className="text-gray-500 text-center py-12">No leads yet</p>
                         )}
                     </div>
                 </div>

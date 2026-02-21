@@ -28,6 +28,12 @@ export const CRMNavbar = () => {
                             Advocates
                         </Link>
                         <Link
+                            to="/crm/leads"
+                            className="text-purple-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Leads
+                        </Link>
+                        <Link
                             to="/crm/referrals"
                             className="text-purple-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                         >
@@ -44,6 +50,12 @@ export const CRMNavbar = () => {
                             className="text-purple-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                         >
                             Payments
+                        </Link>
+                        <Link
+                            to="/crm/escalations"
+                            className="text-purple-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Escalations
                         </Link>
                         <button
                             onClick={logout}

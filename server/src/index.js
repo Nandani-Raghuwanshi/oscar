@@ -9,6 +9,7 @@ import projectRoutes from './routes/projects.js';
 import builderRoutes from './routes/builder.js';
 import advocateRoutes from './routes/advocate.js';
 import brandRoutes from './routes/brand.js';
+import crmRoutes from './routes/crm.js';
 import morgan from 'morgan';
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/builder', builderRoutes);
 app.use('/api/advocate', advocateRoutes);
 app.use('/api/brand', brandRoutes);
+app.use('/api/crm', crmRoutes);
 
 // 404 handler
 app.use(notFoundHandler);

@@ -27,9 +27,12 @@ import BuilderEscalationsPage from './pages/builder/BuilderEscalationsPage';
 // CRM pages
 import CRMDashboard from './pages/dashboards/CRMDashboard';
 import CRMAdvocatesPage from './pages/crm/CRMAdvocatesPage';
+import CRMLeadsPage from './pages/crm/CRMLeadsPage';
 import CRMReferralsPage from './pages/crm/CRMReferralsPage';
 import CRMPipelinePage from './pages/crm/CRMPipelinePage';
 import CRMPaymentsPage from './pages/crm/CRMPaymentsPage';
+import CRMEscalationsPage from './pages/crm/CRMEscalationsPage';
+
 
 // Advocate pages
 import { AdvocateDashboard } from './pages/dashboards/AdvocateDashboard';
@@ -41,9 +44,9 @@ import { AdvocateDocumentationPage } from './pages/advocate/AdvocateDocumentatio
 import { BrandAdvocateDashboard } from './pages/dashboards/BrandAdvocateDashboard';
 import { BrandReferralsPage } from './pages/brand/BrandReferralsPage';
 import { BrandRewardsPage } from './pages/brand/BrandRewardsPage';
-import { BrandProjectPage } from './pages/brand/BrandProjectPage';
-import { BrandDocumentationPage } from './pages/brand/BrandDocumentationPage';
-import { BrandAdvocateOutlet } from './pages/outlets/BrandAdvocateOutlet';
+import BrandProjectPage from './pages/brand/BrandProjectPage';
+import BrandDocumentationPage from './pages/brand/BrandDocumentationPage';
+import BrandAdvocateOutlet from './pages/outlets/BrandAdvocateOutlet';
 
 function App() {
     const { token } = useAuthStore();
@@ -112,9 +115,11 @@ function App() {
                 >
                     <Route path="dashboard" element={<CRMDashboard />} />
                     <Route path="advocates" element={<CRMAdvocatesPage />} />
+                    <Route path="leads" element={<CRMLeadsPage/>} />
                     <Route path="referrals" element={<CRMReferralsPage />} />
                     <Route path="pipeline" element={<CRMPipelinePage />} />
                     <Route path="payments" element={<CRMPaymentsPage />} />
+                    <Route path="escalations" element={<CRMEscalationsPage />} />
                 </Route>
 
                 {/* Advocate Routes */}

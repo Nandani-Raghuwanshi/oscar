@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import RoleBasedLayout from '../RoleBasedLayout';
-import BrandNavbar from '../navbars/BrandNavbar';
+import { RoleBasedLayout } from '../../components/RoleBasedLayout';
+import BrandNavbar from '../../components/navbars/BrandNavbar';
 
 /**
  * BrandAdvocateOutlet
