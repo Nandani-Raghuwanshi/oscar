@@ -147,4 +147,70 @@ export const crmAPI = {
     resolveEscalation: (id, data) => apiClient.patch(`/crm/escalations/${id}/resolve`, data)
 };
 
+export const notificationAPI = {
+    // Get notifications
+    getNotifications: (params) => apiClient.get('/notifications', { params }),
+    getUnreadCount: () => apiClient.get('/notifications/unread/count'),
+
+    // Mark as read
+    markAsRead: (id) => apiClient.patch(`/notifications/${id}/read`),
+    markAllAsRead: () => apiClient.patch('/notifications/read-all/all'),
+
+    // Delete notifications
+    deleteNotification: (id) => apiClient.delete(`/notifications/${id}`),
+
+    // User preferences
+    getUserPreferences: () => apiClient.get('/notifications/preferences/user'),
+    updateUserPreferences: (data) => apiClient.patch('/notifications/preferences/update', data),
+
+    // Admin - Send notifications
+    sendNotification: (data) => apiClient.post('/notifications/send', data),
+    sendBulkNotification: (data) => apiClient.post('/notifications/send-bulk', data),
+    scheduleNotification: (data) => apiClient.post('/notifications/schedule', data),
+
+    // Template management
+    getTemplates: (params) => apiClient.get('/notifications/templates/list', { params }),
+    createTemplate: (data) => apiClient.post('/notifications/templates/create', data),
+    getTemplate: (id) => apiClient.get(`/notifications/templates/${id}`),
+    updateTemplate: (id, data) => apiClient.patch(`/notifications/templates/${id}/update`, data),
+    deleteTemplate: (id) => apiClient.delete(`/notifications/templates/${id}`),
+};
+
+export const analyticsAPI = {
+    // Overview & Analytics
+    getSystemOverview: (params) => apiClient.get('/analytics/overview', { params }),
+    getUserAnalytics: (params) => apiClient.get('/analytics/users', { params }),
+    getProjectAnalytics: (params) => apiClient.get('/analytics/projects', { params }),
+    getReferralAnalytics: (params) => apiClient.get('/analytics/referrals', { params }),
+    getSalesPipelineAnalytics: (params) => apiClient.get('/analytics/sales-pipeline', { params }),
+    getRevenueAnalytics: (params) => apiClient.get('/analytics/revenue', { params }),
+    getROIAnalytics: (params) => apiClient.get('/analytics/roi', { params }),
+    getActivityTimeline: (params) => apiClient.get('/analytics/activity-timeline', { params }),
+
+    // Custom Reports
+    generateCustomReport: (data) => apiClient.post('/analytics/custom-report', data),
+
+    // Export Functions
+    exportLeads: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${apiClient.defaults.baseURL}/analytics/export/leads?${queryString}`;
+    },
+    exportReferrals: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${apiClient.defaults.baseURL}/analytics/export/referrals?${queryString}`;
+    },
+    exportUsers: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${apiClient.defaults.baseURL}/analytics/export/users?${queryString}`;
+    },
+    exportCustomers: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${apiClient.defaults.baseURL}/analytics/export/customers?${queryString}`;
+    },
+    exportAnalytics: (params) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${apiClient.defaults.baseURL}/analytics/export/analytics?${queryString}`;
+    }
+};
+
 export default apiClient;

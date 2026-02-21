@@ -17,12 +17,15 @@ import { AdminDashboard } from './pages/dashboards/AdminDashboard';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminProjectsPage } from './pages/admin/AdminProjectsPage';
 import { AdminEscalationsPage } from './pages/admin/AdminEscalationsPage';
+import AdminNotificationsPage from './pages/admin/AdminNotificationsPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 
 // Builder pages
 import BuilderDashboard from './pages/dashboards/BuilderDashboard';
 import BuilderCustomersPage from './pages/builder/BuilderCustomersPage';
 import BuilderReportsPage from './pages/builder/BuilderReportsPage';
 import BuilderEscalationsPage from './pages/builder/BuilderEscalationsPage';
+import BuilderAnalyticsPage from './pages/builder/BuilderAnalyticsPage';
 
 // CRM pages
 import CRMDashboard from './pages/dashboards/CRMDashboard';
@@ -32,6 +35,7 @@ import CRMReferralsPage from './pages/crm/CRMReferralsPage';
 import CRMPipelinePage from './pages/crm/CRMPipelinePage';
 import CRMPaymentsPage from './pages/crm/CRMPaymentsPage';
 import CRMEscalationsPage from './pages/crm/CRMEscalationsPage';
+import CRMAnalyticsPage from './pages/crm/CRMAnalyticsPage';
 
 
 // Advocate pages
@@ -87,6 +91,8 @@ function App() {
                     <Route path="users" element={<AdminUsersPage />} />
                     <Route path="projects" element={<AdminProjectsPage />} />
                     <Route path="escalations" element={<AdminEscalationsPage />} />
+                    <Route path="notifications" element={<AdminNotificationsPage />} />
+                    <Route path="analytics" element={<AdminAnalyticsPage />} />
                 </Route>
 
                 {/* Builder Routes */}
@@ -102,6 +108,7 @@ function App() {
                     <Route path="customers" element={<BuilderCustomersPage />} />
                     <Route path="reports" element={<BuilderReportsPage />} />
                     <Route path="escalations" element={<BuilderEscalationsPage />} />
+                    <Route path="analytics" element={<BuilderAnalyticsPage />} />
                 </Route>
 
                 {/* CRM Routes */}
@@ -115,11 +122,12 @@ function App() {
                 >
                     <Route path="dashboard" element={<CRMDashboard />} />
                     <Route path="advocates" element={<CRMAdvocatesPage />} />
-                    <Route path="leads" element={<CRMLeadsPage/>} />
+                    <Route path="leads" element={<CRMLeadsPage />} />
                     <Route path="referrals" element={<CRMReferralsPage />} />
                     <Route path="pipeline" element={<CRMPipelinePage />} />
                     <Route path="payments" element={<CRMPaymentsPage />} />
                     <Route path="escalations" element={<CRMEscalationsPage />} />
+                    <Route path="analytics" element={<CRMAnalyticsPage />} />
                 </Route>
 
                 {/* Advocate Routes */}

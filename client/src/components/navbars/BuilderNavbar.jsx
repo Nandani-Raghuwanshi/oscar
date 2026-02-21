@@ -39,6 +39,12 @@ export const BuilderNavbar = () => {
                         >
                             Escalations
                         </Link>
+                        <Link
+                            to="/builder/analytics"
+                            className="text-green-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Analytics
+                        </Link>
                         <button
                             onClick={logout}
                             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"

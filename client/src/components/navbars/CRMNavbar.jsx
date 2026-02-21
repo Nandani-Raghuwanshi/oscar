@@ -57,6 +57,12 @@ export const CRMNavbar = () => {
                         >
                             Escalations
                         </Link>
+                        <Link
+                            to="/crm/analytics"
+                            className="text-purple-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Analytics
+                        </Link>
                         <button
                             onClick={logout}
                             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"

@@ -39,6 +39,18 @@ export const AdminNavbar = () => {
                         >
                             Audit Trail
                         </Link>
+                        <Link
+                            to="/admin/notifications"
+                            className="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Notifications
+                        </Link>
+                        <Link
+                            to="/admin/analytics"
+                            className="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                        >
+                            Analytics
+                        </Link>
                         <button
                             onClick={logout}
                             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
