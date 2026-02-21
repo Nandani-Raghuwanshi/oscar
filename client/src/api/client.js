@@ -147,6 +147,17 @@ export const crmAPI = {
     resolveEscalation: (id, data) => apiClient.patch(`/crm/escalations/${id}/resolve`, data)
 };
 
+export const escalationRulesAPI = {
+    // Escalation Rules Management (Admin only)
+    getRules: (params) => apiClient.get('/admin/escalation-rules', { params }),
+    getRule: (id) => apiClient.get(`/admin/escalation-rules/${id}`),
+    createRule: (data) => apiClient.post('/admin/escalation-rules', data),
+    updateRule: (id, data) => apiClient.put(`/admin/escalation-rules/${id}`, data),
+    toggleRule: (id) => apiClient.patch(`/admin/escalation-rules/${id}/toggle`),
+    deleteRule: (id) => apiClient.delete(`/admin/escalation-rules/${id}`),
+    triggerProcessing: () => apiClient.post('/admin/escalation-rules/trigger')
+};
+
 export const notificationAPI = {
     // Get notifications
     getNotifications: (params) => apiClient.get('/notifications', { params }),

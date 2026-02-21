@@ -20,6 +20,7 @@ const STATUS_COLUMNS = [
     { key: 'pending', label: 'Pending', color: 'bg-gray-100 border-gray-300' },
     { key: 'new', label: 'New', color: 'bg-blue-100 border-blue-300' },
     { key: 'contacted', label: 'Contacted', color: 'bg-yellow-100 border-yellow-300' },
+    { key: 'site_visit', label: 'Site Visit', color: 'bg-teal-100 border-teal-300' },
     { key: 'qualified', label: 'Qualified', color: 'bg-purple-100 border-purple-300' },
     { key: 'negotiating', label: 'Negotiating', color: 'bg-indigo-100 border-indigo-300' },
     { key: 'proposal_sent', label: 'Proposal Sent', color: 'bg-cyan-100 border-cyan-300' },
@@ -389,6 +390,23 @@ const CRMPipelinePage = () => {
                 onClick={() => setSelectedLead(item)}
                 className="bg-white border border-gray-200 rounded-lg p-4 mb-3 hover:shadow-md transition-shadow cursor-pointer"
             >
+                {/* Escalation Indicator */}
+                {item.isEscalated && (
+                    <div className="mb-2 flex items-center gap-2 bg-red-50 border border-red-200 rounded px-2 py-1">
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <span className={`text-xs font-semibold ${
+                            item.priority === 'critical' ? 'text-red-600' :
+                            item.priority === 'high' ? 'text-orange-600' :
+                            'text-yellow-600'
+                        }`}>
+                            {item.priority === 'critical' ? 'CRITICAL' :
+                             item.priority === 'high' ? 'HIGH PRIORITY' :
+                             'ESCALATED'}
+                            {item.escalationStage ? ` (Stage ${item.escalationStage})` : ''}
+                        </span>
+                    </div>
+                )}
+                
                 <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold text-gray-900 text-sm">
                         {displayName}

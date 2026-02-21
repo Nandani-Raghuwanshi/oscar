@@ -12,6 +12,8 @@ import brandRoutes from './routes/brand.js';
 import crmRoutes from './routes/crm.js';
 import notificationRoutes from './routes/notifications.js';
 import analyticsRoutes from './routes/analytics.js';
+import escalationRulesRoutes from './routes/escalationRules.js';
+import { startEscalationCron } from './jobs/escalationCron.js';
 import morgan from 'morgan';
 dotenv.config();
 
@@ -37,6 +39,7 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/escalation-rules', escalationRulesRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/builder', builderRoutes);
 app.use('/api/advocate', advocateRoutes);
@@ -56,6 +59,9 @@ export default app;
 
 // Start server only if not in test mode
 if (process.env.NODE_ENV !== 'test') {
+    // Start escalation cron job
+    startEscalationCron();
+    
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });

@@ -204,10 +204,11 @@ router.patch(
 
             lead.assignedToId = assignedToId;
             lead.assignedDate = new Date();
-            lead.status = 'contacted';
+            lead.status = 'new';
             lead.statusHistory.push({
-                status: 'contacted',
+                status: 'new',
                 updatedBy: req.user.id,
+                updatedDate: new Date(),
                 notes: notes || 'Assigned to sales associate'
             });
 
@@ -229,7 +230,7 @@ router.patch(
     verifyCRMUser,
     [
         body('status')
-            .isIn(['new', 'contacted', 'qualified', 'negotiating', 'proposal_sent', 'converted', 'lost'])
+            .isIn(['new', 'contacted', 'site_visit', 'qualified', 'negotiating', 'proposal_sent', 'converted', 'lost'])
             .withMessage('Invalid status'),
         body('notes').trim().notEmpty().withMessage('Notes are required')
             .custom((value) => {
@@ -279,11 +280,19 @@ router.patch(
             if (status === 'contacted' && !lead.firstContactDate) {
                 lead.firstContactDate = new Date();
             }
+            
+            // Track site visit
+            if (status === 'site_visit' && !lead.siteVisitDate) {
+                lead.siteVisitDate = new Date();
+                lead.siteVisitScheduled = true;
+            }
+            
             lead.lastContactDate = new Date();
 
             // Clear escalation if lead is converted or lost
             if (status === 'converted' || status === 'lost') {
                 lead.isEscalated = false;
+                lead.escalationStage = 0;
             }
 
             await lead.save();
@@ -758,18 +767,21 @@ router.post(
                         referralId: referralId,
                         customerId: referral.customerId,
                         projectId: referral.projectId,
-                        sourceAdvocateId: referral.advocateId
+                        sourceAdvocateId: referral.advocateId,
+                        status: 'new'
                     });
                 }
 
                 lead.assignedToId = assignedToId;
                 lead.assignedDate = new Date();
-                lead.statusHistory.push({
-                    status: lead.status,
-                    updatedBy: req.user.id,
-                    updatedDate: new Date(),
-                    notes: `Auto-assigned via ${assignmentStrategy}`
-                });
+                if (lead.status === 'new') {
+                    lead.statusHistory.push({
+                        status: 'new',
+                        updatedBy: req.user.id,
+                        updatedDate: new Date(),
+                        notes: `Auto-assigned via ${assignmentStrategy}`
+                    });
+                }
 
                 await lead.save();
                 assignments.push({

@@ -36,7 +36,7 @@ const leadSchema = new mongoose.Schema({
     // Pipeline Status
     status: {
         type: String,
-        enum: ['new', 'contacted', 'qualified', 'negotiating', 'proposal_sent', 'converted', 'lost'],
+        enum: ['new', 'contacted', 'site_visit', 'qualified', 'negotiating', 'proposal_sent', 'converted', 'lost'],
         default: 'new',
         index: true
     },
@@ -52,6 +52,12 @@ const leadSchema = new mongoose.Schema({
     firstContactDate: Date,
     lastContactDate: Date,
     nextFollowUpDate: Date,
+    siteVisitDate: Date,
+    siteVisitNotes: String,
+    siteVisitScheduled: {
+        type: Boolean,
+        default: false
+    },
 
     // Notes & Comments
     notes: {
@@ -84,6 +90,22 @@ const leadSchema = new mongoose.Schema({
     escalationReason: String,
     escalatedBy: mongoose.Schema.Types.ObjectId,
     escalatedDate: Date,
+    
+    escalationRuleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'EscalationRule'
+    },
+    escalationStage: {
+        type: Number,
+        default: 0
+    },
+    escalationHistory: [{
+        stage: Number,
+        priority: String,
+        triggeredAt: Date,
+        resolvedAt: Date,
+        notes: String
+    }],
 
     // Payment Tracking
     paymentStatus: {

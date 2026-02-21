@@ -207,6 +207,9 @@ const CRMEscalationsPage = () => {
                                     Customer
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    Stage
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                     Priority
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -229,7 +232,7 @@ const CRMEscalationsPage = () => {
                         <tbody className="divide-y divide-gray-200">
                             {escalations.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                                         No escalations found
                                     </td>
                                 </tr>
@@ -239,11 +242,23 @@ const CRMEscalationsPage = () => {
                                         <td className="px-6 py-4">
                                             <div>
                                                 <p className="font-semibold text-gray-900">
-                                                    {escalation.customerId?.name || 'Unknown'}
+                                                    {escalation.customerId?.name || escalation.referralId?.referrerName || 'Unknown'}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    {escalation.customerId?.email || escalation.customerId?.phone}
+                                                    {escalation.customerId?.email || escalation.referralId?.referrerEmail || escalation.customerId?.phone || escalation.referralId?.referrerPhone}
                                                 </p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div>
+                                                <span className="text-sm font-semibold text-gray-900">
+                                                    Stage {escalation.escalationStage || 1}
+                                                </span>
+                                                {escalation.escalationHistory && escalation.escalationHistory.length > 0 && (
+                                                    <p className="text-xs text-gray-600 mt-1">
+                                                        {new Date(escalation.escalationHistory[escalation.escalationHistory.length - 1].triggeredAt).toLocaleDateString()}
+                                                    </p>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -271,7 +286,7 @@ const CRMEscalationsPage = () => {
                                             <div className="flex items-center gap-2">
                                                 <User className="w-4 h-4 text-gray-400" />
                                                 <p className="text-sm text-gray-700">
-                                                    {escalation.assignedToId?.name || 'Unassigned'}
+                                                    {escalation.assignedToId?.name || escalation.assignedToId?.firstName || 'Unassigned'}
                                                 </p>
                                             </div>
                                         </td>
