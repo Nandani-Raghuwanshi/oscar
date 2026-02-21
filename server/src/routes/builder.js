@@ -79,12 +79,20 @@ const findExistingUser = async (email, phone) => {
 // Middleware: Verify builder access
 const verifyBuilder = async (req, res, next) => {
     try {
+        console.log('verifyBuilder - Checking user ID:', req.user.id);
         const user = await User.findById(req.user.id);
+        console.log('verifyBuilder - User found:', user ? `${user.firstName} ${user.lastName}` : 'null');
+        console.log('verifyBuilder - User role:', user?.role);
+        
         if (!user || user.role !== 'builder') {
+            console.log('verifyBuilder - Access denied');
             return errorResponse(res, 403, 'Access denied. Builder role required.');
         }
+        
+        console.log('verifyBuilder - Access granted');
         next();
     } catch (error) {
+        console.error('verifyBuilder - Error:', error);
         errorResponse(res, 500, 'Server error');
     }
 };
@@ -117,8 +125,14 @@ const upload = multer({
 // GET /builder/projects - Get builder's project (only one per builder)
 router.get('/projects', authenticateToken, verifyBuilder, async (req, res) => {
     try {
+        console.log('Builder projects request - User ID:', req.user.id);
+        console.log('User role:', req.user.role);
+        
         // Find all projects assigned to this builder
         const projects = await Project.find({ builder: req.user.id }).lean();
+
+        console.log('Projects found:', projects.length);
+        console.log('Projects:', JSON.stringify(projects, null, 2));
 
         if (!projects || projects.length === 0) {
             return successResponse(res, 200, 'No projects assigned', {

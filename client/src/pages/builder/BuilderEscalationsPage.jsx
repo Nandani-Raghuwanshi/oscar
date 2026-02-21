@@ -27,14 +27,30 @@ const BuilderEscalationsPage = () => {
     }, [selectedProject, statusFilter, priorityFilter, currentPage]);
 
     const fetchProjects = async () => {
+        console.log('Fetching projects...');
+        setLoadingProjects(true);
+        setError(null);
         try {
+            const token = localStorage.getItem('token');
+            console.log('Token exists:', !!token);
+            
             const response = await apiClient.get('/builder/projects', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                headers: { Authorization: `Bearer ${token}` },
             });
+            
+            console.log('Projects API Response:', response.data);
+            
             const projectsList = response.data?.data?.projects || [];
+            console.log('Projects List:', projectsList);
+            console.log('Number of projects:', projectsList.length);
+            
             setProjects(projectsList);
         } catch (error) {
             console.error('Failed to fetch projects:', error);
+            console.error('Error response:', error.response?.data);
+            setError('Failed to load projects: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setLoadingProjects(false);
         }
     };
 
@@ -125,26 +141,54 @@ const BuilderEscalationsPage = () => {
                 </p>
             </div>
 
+            {/* Error Message */}
+            {error && (
+                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-800">{error}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Project Selection */}
             <div className="mb-6 bg-white rounded-lg shadow p-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                     Filter by Project
                 </label>
-                <select
-                    value={selectedProject}
-                    onChange={(e) => {
-                        setSelectedProject(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                    <option value="all">All Projects</option>
-                    {projects.map((project) => (
-                        <option key={project._id} value={project._id}>
-                            {project.name}
-                        </option>
-                    ))}
-                </select>
+                {loadingProjects ? (
+                    <div className="flex items-center justify-center py-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                        <span className="ml-2 text-sm text-gray-600">Loading projects...</span>
+                    </div>
+                ) : projects.length === 0 ? (
+                    <div className="text-sm text-gray-500 py-2">
+                        No projects found. Please contact your administrator.
+                    </div>
+                ) : (
+                    <select
+                        value={selectedProject}
+                        onChange={(e) => {
+                            console.log('Project changed to:', e.target.value);
+                            setSelectedProject(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="all">All Projects ({projects.length})</option>
+                        {projects.map((project) => (
+                            <option key={project._id} value={project._id}>
+                                {project.name || project.projectName || 'Unnamed Project'}
+                            </option>
+                        ))}
+                    </select>
+                )}
             </div>
 
             {/* Filters */}
